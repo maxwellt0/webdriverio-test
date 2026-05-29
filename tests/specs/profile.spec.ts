@@ -1,11 +1,12 @@
 import { ProfilePage } from '../pages/profile.page';
 import { AuthPage } from '../pages/auth.page';
 import { NavComponent } from '../pages/nav.component';
-import { registerAndLand } from '../fixtures/auth.fixture';
+import { registerAndLand, resetAndOpen } from '../fixtures/auth.fixture';
 import { acceptNextConfirm, cancelNextConfirm } from '../utils/confirm';
 import { readStorage, seedUser } from '../utils/storage';
 import { uniqueUsername, XSS_PAYLOADS } from '../utils/test-data';
 import { escapeRegex } from '../utils/regex';
+import { expectNoXss, installXssProbe } from '../utils/xss-probe';
 
 /**
  * Profile-view specs — implements docs/test-cases/07-profile.md.
@@ -22,6 +23,7 @@ describe('Profile', () => {
     let currentName: string;
 
     beforeEach(async () => {
+        await resetAndOpen();
         currentName = await registerAndLand();
         await nav.goToProfile();
         await profile.loaded();
@@ -55,7 +57,7 @@ describe('Profile', () => {
         await profile.rename(other);
 
         await expect(profile.errorMessage).toBeDisplayed();
-        await expect(profile.errorMessage).toHaveText(/already taken/i);
+        await expect(profile.errorMessage).toHaveText(/already uses this name/i);
         await expect(nav.greeting).toHaveText(new RegExp(escapeRegex(currentName)));
     });
 
@@ -74,16 +76,13 @@ describe('Profile', () => {
     });
 
     it('[TC-PRF-06] rename name injection / XSS does not execute', async () => {
-        await browser.execute(() => {
-            (window as unknown as { __xss: number }).__xss = 0;
-        });
+        await installXssProbe();
 
         for (const payload of XSS_PAYLOADS) {
             await profile.rename(payload);
             await expect(profile.successMessage).toBeDisplayed();
 
-            const xss = await browser.execute(() => (window as unknown as { __xss: number }).__xss);
-            expect(xss).toBe(0);
+            await expectNoXss();
 
             // Visit nav greeting; ensure the payload renders as text, not as HTML.
             await expect(nav.greeting).toHaveText(new RegExp(escapeRegex(payload)));
@@ -93,10 +92,7 @@ describe('Profile', () => {
             await nav.goToProfile();
             await profile.loaded();
 
-            const xssAfterNav = await browser.execute(
-                () => (window as unknown as { __xss: number }).__xss,
-            );
-            expect(xssAfterNav).toBe(0);
+            await expectNoXss();
         }
     });
 });

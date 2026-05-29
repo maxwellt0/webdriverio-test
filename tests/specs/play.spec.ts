@@ -1,26 +1,25 @@
 import { PlayPage } from '../pages/play.page';
-import { registerAndLand } from '../fixtures/auth.fixture';
+import { registerAndLand, resetAndOpen } from '../fixtures/auth.fixture';
 import { assertComputerDoesNotOverwriteCells, playUntilGameOver } from '../fixtures/play.fixture';
 import { acceptNextConfirm, cancelNextConfirm } from '../utils/confirm';
 
 /**
  * Play-view specs — implements docs/test-cases/05-play.md.
  *
- * Covers status pill, board behavior, computer AI, hint, new game / reset,
- * and the difficulty selector. Per-test reset (localStorage cleared + reload)
- * runs in wdio.conf.ts → beforeTest; each `it` then registers a fresh user
- * and lands on the Play view.
+ * `beforeEach` resets storage + reloads, then registers a fresh user so each
+ * test starts on a clean Play view.
  */
 describe('Play', () => {
     const play = new PlayPage();
 
     beforeEach(async () => {
+        await resetAndOpen();
         await registerAndLand();
     });
 
     describe('Status pill', () => {
         it('[TC-STAT-01] initial status is "Your turn (X)"', async () => {
-            expect(await play.getStatus()).toBe('playing');
+            expect(await play.getStatus()).toBe('your-turn');
             await expect(play.status).toHaveText(/your turn/i);
         });
 
@@ -29,7 +28,7 @@ describe('Play', () => {
             await play.waitForComputerThinking();
             await play.waitWhileComputerThinking();
 
-            expect(await play.getStatus()).toBe('playing');
+            expect(await play.getStatus()).toBe('your-turn');
         });
     });
 
@@ -42,12 +41,11 @@ describe('Play', () => {
         it('[TC-BRD-02] clicking an occupied cell is a no-op', async () => {
             await play.playMove(0);
 
-            const before = await play.getBoardState();
-            // Cell 0 is now `x` and disabled — click should be ignored.
-            await play.clickCell(0).catch(() => undefined);
-            const after = await play.getBoardState();
-
-            expect(after).toEqual(before);
+            // The SUT enforces "no overwrite" by disabling occupied cells.
+            // Asserting the disabled state is sharper than swallowing a click error
+            // and comparing board snapshots.
+            await expect(play.cell(0)).toBeDisabled();
+            expect(await play.getCellState(0)).toBe('x');
         });
 
         it('[TC-BRD-03] all cells disabled while computer is thinking', async () => {
@@ -109,7 +107,7 @@ describe('Play', () => {
 
             const board = await play.getBoardState();
             expect(board.every((c) => c === 'empty')).toBe(true);
-            expect(await play.getStatus()).toBe('playing');
+            expect(await play.getStatus()).toBe('your-turn');
             expect(await play.getDifficulty()).toBe('easy');
         });
 
@@ -121,7 +119,7 @@ describe('Play', () => {
 
             const board = await play.getBoardState();
             expect(board.every((c) => c === 'empty')).toBe(true);
-            expect(await play.getStatus()).toBe('playing');
+            expect(await play.getStatus()).toBe('your-turn');
             expect(await play.getDifficulty()).toBe('medium');
         });
     });
@@ -133,7 +131,7 @@ describe('Play', () => {
 
             const board = await play.getBoardState();
             expect(board.every((c) => c === 'empty')).toBe(true);
-            expect(await play.getStatus()).toBe('playing');
+            expect(await play.getStatus()).toBe('your-turn');
         });
 
         it('[TC-DIF-03] mid-game change — accept confirm clears board with new difficulty', async () => {

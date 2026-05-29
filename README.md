@@ -39,14 +39,14 @@ Builds the test image, brings up the `app` service (nginx serving `src/`) with a
 
 ### All scripts
 
-| Command | Purpose |
-|---------|---------|
-| `npm run serve` | Serve the SUT locally on `http://localhost:8080` via `http-server` and open the default browser. |
-| `npm test` | Run WDIO against whatever is serving the SUT at `WDIO_BASE_URL` (defaults to `http://localhost:8080`). Needs the server up — start it with `npm run serve` or `npm run docker:up`. |
-| `npm run typecheck` | `tsc --noEmit`. |
-| `npm run docker:up` | Start the `app` container in the background (alternative to `npm run serve` — same URL, no browser auto-open). |
-| `npm run docker:down` | Tear the docker stack down. |
-| `npm run docker:test` | Full dockerized run — builds the test image, runs WDIO inside it against the in-network `app` service. |
+| Command               | Purpose                                                                                                                                                                            |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `npm run serve`       | Serve the SUT locally on `http://localhost:8080` via `http-server` and open the default browser.                                                                                   |
+| `npm test`            | Run WDIO against whatever is serving the SUT at `WDIO_BASE_URL` (defaults to `http://localhost:8080`). Needs the server up — start it with `npm run serve` or `npm run docker:up`. |
+| `npm run typecheck`   | `tsc --noEmit`.                                                                                                                                                                    |
+| `npm run docker:up`   | Start the `app` container in the background (alternative to `npm run serve` — same URL, no browser auto-open).                                                                     |
+| `npm run docker:down` | Tear the docker stack down.                                                                                                                                                        |
+| `npm run docker:test` | Full dockerized run — builds the test image, runs WDIO inside it against the in-network `app` service.                                                                             |
 
 ## Repository layout
 

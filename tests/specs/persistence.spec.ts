@@ -2,7 +2,7 @@ import { AuthPage } from '../pages/auth.page';
 import { PlayPage } from '../pages/play.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../fixtures/auth.fixture';
+import { registerAndLand, resetAndOpen } from '../fixtures/auth.fixture';
 import { readStorage } from '../utils/storage';
 
 /**
@@ -17,6 +17,8 @@ describe('Persistence', () => {
     const play = new PlayPage();
     const nav = new NavComponent();
     const header = new HeaderComponent();
+
+    beforeEach(resetAndOpen);
 
     it('[TC-PRS-01] theme, language, session, and user records survive reload', async () => {
         const name = await registerAndLand();
@@ -46,7 +48,7 @@ describe('Persistence', () => {
 
         const boardAfter = await play.getBoardState();
         expect(boardAfter.every((c) => c === 'empty')).toBe(true);
-        expect(await play.getStatus()).toBe('playing');
+        expect(await play.getStatus()).toBe('your-turn');
     });
 
     it('[TC-PRS-03] reload always lands on Play view, regardless of pre-reload view', async () => {

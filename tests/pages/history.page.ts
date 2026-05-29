@@ -1,4 +1,5 @@
 import { BasePage } from '../core/base.page';
+import { byTestId } from '../core/selectors';
 
 export interface HistoryRow {
     date: string;
@@ -15,10 +16,10 @@ export class HistoryPage extends BasePage {
     readonly readyTestId = 'view-history';
 
     get emptyState() {
-        return this.byTestId('history-empty');
+        return byTestId('history-empty');
     }
     get clearButton() {
-        return this.byTestId('btn-clear-history');
+        return byTestId('btn-clear-history');
     }
 
     async isEmpty(): Promise<boolean> {
@@ -32,9 +33,9 @@ export class HistoryPage extends BasePage {
 
     async getRow(index: number): Promise<HistoryRow> {
         return {
-            date: await this.byTestId(`history-date-${index}`).getText(),
-            difficulty: await this.byTestId(`history-difficulty-${index}`).getText(),
-            result: await this.byTestId(`history-result-${index}`).getText(),
+            date: await byTestId(`history-date-${index}`).getText(),
+            difficulty: await byTestId(`history-difficulty-${index}`).getText(),
+            result: await byTestId(`history-result-${index}`).getText(),
         };
     }
 

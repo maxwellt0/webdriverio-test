@@ -4,7 +4,7 @@ import { HistoryPage } from '../pages/history.page';
 import { PlayPage } from '../pages/play.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../fixtures/auth.fixture';
+import { registerAndLand, resetAndOpen } from '../fixtures/auth.fixture';
 
 /**
  * Header specs — implements docs/test-cases/02-header.md.
@@ -21,6 +21,8 @@ describe('Header — language & theme', () => {
     const history = new HistoryPage();
     const nav = new NavComponent();
     const header = new HeaderComponent();
+
+    beforeEach(resetAndOpen);
 
     it('[TC-HDR-01] language switch translates labels and flips RTL', async () => {
         await auth.loaded();

@@ -1,4 +1,5 @@
 import { BasePage } from '../core/base.page';
+import { byTestId } from '../core/selectors';
 
 /**
  * Auth view — shown when no user is signed in.
@@ -9,21 +10,22 @@ export class AuthPage extends BasePage {
     readonly readyTestId = 'auth-form';
 
     get nameInput() {
-        return this.byTestId('auth-name');
+        return byTestId('input-name');
     }
+    /** Submit button — `btn-register` in register mode, `btn-login` in login mode. */
     get submitButton() {
-        return this.byTestId('auth-submit');
+        return $('[data-testid="auth-form"] button[type="submit"]');
     }
     get switchModeLink() {
-        return this.byTestId('btn-switch-mode');
+        return byTestId('btn-switch-mode');
     }
     get errorMessage() {
-        return this.byTestId('auth-error');
+        return byTestId('auth-error');
     }
 
     /** Current mode reflected by the `data-mode` attribute on the form. */
     async getMode(): Promise<'register' | 'login'> {
-        const mode = await this.byTestId(this.readyTestId).getAttribute('data-mode');
+        const mode = await byTestId(this.readyTestId).getAttribute('data-mode');
         return mode === 'login' ? 'login' : 'register';
     }
 

@@ -23,7 +23,7 @@ export const config: WebdriverIO.Config = {
     runner: 'local',
 
     specs: ['./tests/specs/**/*.spec.ts'],
-    maxInstances: 1,
+    maxInstances: Number(process.env.WDIO_MAX_INSTANCES ?? 4),
 
     capabilities: [capability],
 
@@ -34,15 +34,27 @@ export const config: WebdriverIO.Config = {
     connectionRetryCount: 3,
 
     framework: 'mocha',
-    reporters: ['spec'],
+    reporters: [
+        'spec',
+        [
+            'allure',
+            {
+                outputDir: 'allure-results',
+                disableWebdriverStepsReporting: true,
+                disableWebdriverScreenshotsReporting: false,
+            },
+        ],
+    ],
     mochaOpts: {
         ui: 'bdd',
         timeout: 60000,
     },
 
-    beforeTest: async function () {
-        await browser.url('/');
-        await browser.execute(() => window.localStorage.clear());
-        await browser.url('/');
-    },
+    /**
+     * `beforeTest` fires AFTER each spec's mocha `beforeEach` in this version of WDIO,
+     * which is too late to use for "land on a fresh auth card" setup. Instead, each
+     * spec's setup helper (`resetAndOpen` / `registerAndLand`) calls into a fixture
+     * that performs the navigate + storage-clear itself, so any entry point is
+     * self-bootstrapping regardless of where chrome started.
+     */
 };

@@ -4,7 +4,7 @@ import { ProfilePage } from '../pages/profile.page';
 import { HistoryPage } from '../pages/history.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../fixtures/auth.fixture';
+import { registerAndLand, resetAndOpen } from '../fixtures/auth.fixture';
 import { loseOneGame, playUntilGameOver, winOneGame } from '../fixtures/play.fixture';
 import { readStorage } from '../utils/storage';
 import { escapeRegex } from '../utils/regex';
@@ -22,6 +22,8 @@ describe('End-to-end flows', () => {
     const history = new HistoryPage();
     const nav = new NavComponent();
     const header = new HeaderComponent();
+
+    beforeEach(resetAndOpen);
 
     it('[E2E-01] new player: register → win on Easy → lose on Medium → see history → logout', async () => {
         // 1. Create a user
@@ -96,6 +98,8 @@ describe('End-to-end flows', () => {
 
         await nav.goToProfile();
         await profile.loaded();
-        expect((await profile.getStats()).wins).toBe(1);
+        // We played one game of unspecified outcome — wins + losses + draws should be 1.
+        const stats = await profile.getStats();
+        expect(stats.wins + stats.losses + stats.draws).toBe(1);
     });
 });

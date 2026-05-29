@@ -3,7 +3,7 @@ import { PlayPage } from '../pages/play.page';
 import { ProfilePage } from '../pages/profile.page';
 import { HistoryPage } from '../pages/history.page';
 import { NavComponent } from '../pages/nav.component';
-import { registerAndLand } from '../fixtures/auth.fixture';
+import { registerAndLand, resetAndOpen } from '../fixtures/auth.fixture';
 import { readStorage } from '../utils/storage';
 
 /**
@@ -20,6 +20,7 @@ describe('Navigation', () => {
     const nav = new NavComponent();
 
     beforeEach(async () => {
+        await resetAndOpen();
         await registerAndLand();
     });
 

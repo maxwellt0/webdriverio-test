@@ -9,6 +9,10 @@
 
 export type StorageKey = 'theme' | 'lang' | 'session' | 'users';
 
+/** The SUT prefixes every key in localStorage with `ttt:`. Specs pass the unprefixed name. */
+const PREFIX = 'ttt:';
+const prefixed = (k: StorageKey) => `${PREFIX}${k}`;
+
 /** Read a key. If the stored value is JSON, returns the parsed object; otherwise the raw string. */
 export async function readStorage<T = unknown>(key: StorageKey): Promise<T | null> {
     return browser.execute((k: string) => {
@@ -19,13 +23,30 @@ export async function readStorage<T = unknown>(key: StorageKey): Promise<T | nul
         } catch {
             return v;
         }
-    }, key) as Promise<T | null>;
+    }, prefixed(key)) as Promise<T | null>;
+}
+
+export type Difficulty = 'easy' | 'medium' | 'hard';
+export type GameResult = 'win' | 'loss' | 'draw';
+
+export interface HistoryEntry {
+    finishedAt: number;
+    difficulty: Difficulty;
+    result: GameResult;
+}
+
+/** Shape of one entry under the `users` map in localStorage. */
+export interface StoredUser {
+    name: string;
+    createdAt: number;
+    difficulty: Difficulty;
+    history: HistoryEntry[];
 }
 
 export interface SeedUserOptions {
     name: string;
-    difficulty?: 'easy' | 'medium' | 'hard';
-    history?: Array<{ finishedAt: number; difficulty: string; result: 'win' | 'loss' | 'draw' }>;
+    difficulty?: Difficulty;
+    history?: HistoryEntry[];
     createdAt?: number;
 }
 
@@ -37,22 +58,27 @@ export interface SeedUserOptions {
  * Does not set the session — the user is not signed in. Combine with the auth flow if needed.
  */
 export async function seedUser(opts: SeedUserOptions): Promise<void> {
-    await browser.execute((u: SeedUserOptions) => {
-        let users: Record<string, unknown> = {};
-        try {
-            users = JSON.parse(window.localStorage.getItem('users') ?? '{}') as Record<
-                string,
-                unknown
-            >;
-        } catch {
-            users = {};
-        }
-        users[u.name.toLowerCase()] = {
-            name: u.name,
-            createdAt: u.createdAt ?? Date.now(),
-            difficulty: u.difficulty ?? 'easy',
-            history: u.history ?? [],
-        };
-        window.localStorage.setItem('users', JSON.stringify(users));
-    }, opts);
+    await browser.execute(
+        (u: SeedUserOptions, key: string) => {
+            let users: Record<string, StoredUser> = {};
+            try {
+                users = JSON.parse(window.localStorage.getItem(key) ?? '{}') as Record<
+                    string,
+                    StoredUser
+                >;
+            } catch {
+                users = {};
+            }
+            // The SUT keys users by their lowercased display name.
+            users[u.name.toLowerCase()] = {
+                name: u.name,
+                createdAt: u.createdAt ?? Date.now(),
+                difficulty: u.difficulty ?? 'easy',
+                history: u.history ?? [],
+            };
+            window.localStorage.setItem(key, JSON.stringify(users));
+        },
+        opts,
+        prefixed('users'),
+    );
 }

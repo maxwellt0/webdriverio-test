@@ -1,3 +1,5 @@
+import { byTestId } from '../core/selectors';
+
 /**
  * Post-login navigation bar — shared by Play, Profile, and History views.
  * Exposes Play / Profile / History switch and Log Out, plus the avatar / greeting.
@@ -6,42 +8,30 @@
  * Specs use it via composition: `await new NavComponent().goToProfile()`.
  */
 export class NavComponent {
-    private byTestId(id: string) {
-        return $(`[data-testid="${id}"]`);
-    }
-
     get root() {
-        return this.byTestId('nav');
+        return byTestId('nav');
     }
     get greeting() {
-        return this.byTestId('nav-hello');
+        return byTestId('hello-user');
     }
     get avatar() {
-        return this.byTestId('nav-avatar');
+        return byTestId('avatar');
     }
     get playButton() {
-        return this.byTestId('nav-play');
+        return byTestId('nav-play');
     }
     get profileButton() {
-        return this.byTestId('nav-profile');
+        return byTestId('nav-profile');
     }
     get historyButton() {
-        return this.byTestId('nav-history');
+        return byTestId('nav-history');
     }
     get logoutButton() {
-        return this.byTestId('btn-logout');
+        return byTestId('btn-logout');
     }
 
     async isVisible(): Promise<boolean> {
         return this.root.isDisplayed();
-    }
-
-    async getGreeting(): Promise<string> {
-        return this.greeting.getText();
-    }
-
-    async getAvatarInitial(): Promise<string> {
-        return this.avatar.getText();
     }
 
     async goToPlay(): Promise<void> {

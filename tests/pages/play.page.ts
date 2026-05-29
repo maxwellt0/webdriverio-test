@@ -1,7 +1,17 @@
 import { BasePage } from '../core/base.page';
+import { byTestId } from '../core/selectors';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type CellState = 'empty' | 'x' | 'o';
+
+/** Game-over states reflected on `[data-testid="status"]`'s `data-status` attribute. */
+export type TerminalStatus = 'human' | 'computer' | 'draw';
+/** All values the `data-status` attribute can take. */
+export type PlayStatus = TerminalStatus | 'your-turn' | 'computer-thinking';
+
+export const TERMINAL_STATUSES: readonly TerminalStatus[] = ['human', 'computer', 'draw'];
+export const isTerminal = (s: string): s is TerminalStatus =>
+    (TERMINAL_STATUSES as readonly string[]).includes(s);
 
 /**
  * Play view — the game board, status pill, action row, difficulty selector.
@@ -15,26 +25,26 @@ export class PlayPage extends BasePage {
     readonly readyTestId = 'view-play';
 
     get board() {
-        return this.byTestId('board');
+        return byTestId('board');
     }
     get status() {
-        return this.byTestId('status');
+        return byTestId('status');
     }
     get newGameButton() {
-        return this.byTestId('btn-new-game');
+        return byTestId('btn-new');
     }
     get hintButton() {
-        return this.byTestId('btn-hint');
+        return byTestId('btn-hint');
     }
     get resetButton() {
-        return this.byTestId('btn-reset');
+        return byTestId('btn-reset');
     }
     get difficultySelect() {
-        return this.byTestId('select-difficulty');
+        return byTestId('select-difficulty');
     }
 
     cell(index: number) {
-        return this.byTestId(`cell-${index}`);
+        return byTestId(`cell-${index}`);
     }
 
     async getCellState(index: number): Promise<CellState> {
@@ -42,13 +52,24 @@ export class PlayPage extends BasePage {
         return (state as CellState) ?? 'empty';
     }
 
+    /** Read all 9 cell states in a single round-trip via `browser.execute`. */
     async getBoardState(): Promise<CellState[]> {
-        return Promise.all([...Array(9).keys()].map((i) => this.getCellState(i)));
+        return browser.execute(() => {
+            const out: string[] = Array(9).fill('empty');
+            for (const el of document.querySelectorAll('[data-testid^="cell-"]')) {
+                const id = el.getAttribute('data-testid') ?? '';
+                const i = Number(id.slice('cell-'.length));
+                if (Number.isInteger(i) && i >= 0 && i < 9) {
+                    out[i] = el.getAttribute('data-state') ?? 'empty';
+                }
+            }
+            return out;
+        }) as Promise<CellState[]>;
     }
 
-    /** Raw `data-status` value, e.g. `"playing"`, `"computer-thinking"`, `"human"`, `"computer"`, `"draw"`. */
-    async getStatus(): Promise<string> {
-        return (await this.status.getAttribute('data-status')) ?? '';
+    /** Typed `data-status` value. */
+    async getStatus(): Promise<PlayStatus> {
+        return ((await this.status.getAttribute('data-status')) ?? '') as PlayStatus;
     }
 
     async clickCell(index: number): Promise<void> {
@@ -64,25 +85,33 @@ export class PlayPage extends BasePage {
         await this.waitWhileComputerThinking();
     }
 
-    async waitForComputerThinking(timeout = 2000): Promise<void> {
-        await browser.waitUntil(async () => (await this.getStatus()) === 'computer-thinking', {
-            timeout,
-            timeoutMsg: 'Status never became computer-thinking',
-        });
+    /** Wait until `getStatus()` satisfies `pred`. Shared body for all wait helpers below. */
+    private waitForStatus(
+        pred: (s: PlayStatus) => boolean,
+        timeoutMsg: string,
+        timeout = 5000,
+    ): Promise<true | void> {
+        return browser.waitUntil(async () => pred(await this.getStatus()), { timeout, timeoutMsg });
     }
 
-    async waitWhileComputerThinking(timeout = 5000): Promise<void> {
-        await browser.waitUntil(async () => (await this.getStatus()) !== 'computer-thinking', {
-            timeout,
-            timeoutMsg: 'Status stuck on computer-thinking',
-        });
-    }
-
-    async waitForGameOver(timeout = 10000): Promise<void> {
-        await browser.waitUntil(
-            async () => ['human', 'computer', 'draw'].includes(await this.getStatus()),
-            { timeout, timeoutMsg: 'Game did not reach a terminal state' },
+    async waitForComputerThinking(): Promise<void> {
+        await this.waitForStatus(
+            (s) => s === 'computer-thinking',
+            'Status never became computer-thinking',
+            5000,
         );
+    }
+
+    async waitWhileComputerThinking(): Promise<void> {
+        await this.waitForStatus(
+            (s) => s !== 'computer-thinking',
+            'Status stuck on computer-thinking',
+            5000,
+        );
+    }
+
+    async waitForGameOver(): Promise<void> {
+        await this.waitForStatus(isTerminal, 'Game did not reach a terminal state', 10000);
     }
 
     async setDifficulty(level: Difficulty): Promise<void> {

@@ -1,7 +1,7 @@
 import { AuthPage } from '../pages/auth.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../fixtures/auth.fixture';
+import { registerAndLand, resetAndOpen } from '../fixtures/auth.fixture';
 
 /**
  * Theme specs — implements docs/test-cases/08-theme.md.
@@ -14,6 +14,8 @@ describe('Theme', () => {
     const auth = new AuthPage();
     const nav = new NavComponent();
     const header = new HeaderComponent();
+
+    beforeEach(resetAndOpen);
 
     it('[TC-THM-01] theme toggle updates the active theme synchronously', async () => {
         await auth.loaded();

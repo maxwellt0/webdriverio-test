@@ -1,9 +1,12 @@
+import { byTestId } from './selectors';
+
 /**
  * Abstract base for every page object in the suite.
  *
  * Conventions:
- * - Locators are `data-testid` only. The SUT exposes one on every interactive
- *   surface (see EXPLORATION §13), so CSS / XPath are off-limits in subclasses.
+ * - Locators are `data-testid` only (via `byTestId` from `./selectors`). The
+ *   SUT exposes one on every interactive surface (see EXPLORATION §13), so
+ *   CSS / XPath are off-limits in subclasses.
  * - `open()` navigates and then waits for the page-specific ready signal.
  * - `loaded()` is the single readiness primitive: subclasses either rely on
  *   the default (wait for `readyTestId` to be displayed) or override for
@@ -27,16 +30,11 @@ export abstract class BasePage {
 
     /** Resolves once the page is rendered and ready to interact with. */
     async loaded(): Promise<void> {
-        await this.byTestId(this.readyTestId).waitForDisplayed();
+        await byTestId(this.readyTestId).waitForDisplayed();
     }
 
     /** True if the page-ready element is currently displayed (no waiting). */
     async isOpen(): Promise<boolean> {
-        return this.byTestId(this.readyTestId).isDisplayed();
-    }
-
-    /** Convenience locator: `[data-testid="<id>"]`. */
-    protected byTestId(id: string) {
-        return $(`[data-testid="${id}"]`);
+        return byTestId(this.readyTestId).isDisplayed();
     }
 }

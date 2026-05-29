@@ -1,5 +1,6 @@
 import { AuthPage } from '../pages/auth.page';
 import { HeaderComponent } from '../pages/header.component';
+import { resetAndOpen } from '../fixtures/auth.fixture';
 
 /**
  * Localization specs — implements docs/test-cases/09-i18n.md.
@@ -10,6 +11,8 @@ import { HeaderComponent } from '../pages/header.component';
 describe('Localization', () => {
     const auth = new AuthPage();
     const header = new HeaderComponent();
+
+    beforeEach(resetAndOpen);
 
     it('[TC-I18N-01] language switch translates labels and flips RTL', async () => {
         await auth.loaded();

@@ -1,9 +1,11 @@
 import { AuthPage } from '../pages/auth.page';
 import { PlayPage } from '../pages/play.page';
 import { NavComponent } from '../pages/nav.component';
+import { resetAndOpen } from '../fixtures/auth.fixture';
 import { escapeRegex } from '../utils/regex';
 import { readStorage, seedUser } from '../utils/storage';
 import { uniqueUsername, XSS_PAYLOADS } from '../utils/test-data';
+import { expectNoXss, installXssProbe } from '../utils/xss-probe';
 
 /**
  * Auth specs — implements docs/test-cases/03-auth.md.
@@ -15,6 +17,8 @@ describe('Authentication', () => {
     const auth = new AuthPage();
     const play = new PlayPage();
     const nav = new NavComponent();
+
+    beforeEach(resetAndOpen);
 
     describe('Register', () => {
         it('[TC-REG-01] happy path: register with a valid new name', async () => {
@@ -34,7 +38,7 @@ describe('Authentication', () => {
             await auth.register('');
 
             await expect(auth.errorMessage).toBeDisplayed();
-            await expect(auth.errorMessage).toHaveText(/enter your name/i);
+            await expect(auth.errorMessage).toHaveText(/enter a name/i);
             expect(await auth.isOpen()).toBe(true);
         });
 
@@ -42,7 +46,7 @@ describe('Authentication', () => {
             await auth.register('   ');
 
             await expect(auth.errorMessage).toBeDisplayed();
-            await expect(auth.errorMessage).toHaveText(/enter your name/i);
+            await expect(auth.errorMessage).toHaveText(/enter a name/i);
         });
 
         it('[TC-REG-04] rejects 1-character name', async () => {
@@ -59,27 +63,23 @@ describe('Authentication', () => {
             for (const variant of [existing, existing.toUpperCase(), existing.toLowerCase()]) {
                 await auth.register(variant);
                 await expect(auth.errorMessage).toBeDisplayed();
-                await expect(auth.errorMessage).toHaveText(/already exists/i);
+                await expect(auth.errorMessage).toHaveText(/already taken/i);
             }
         });
 
         it('[TC-REG-06] name injection / XSS does not execute on register', async () => {
             for (const payload of XSS_PAYLOADS) {
-                // Each iteration starts fresh: clear storage, install probe, reload.
-                await browser.execute(() => {
-                    window.localStorage.clear();
-                    (window as unknown as { __xss: number }).__xss = 0;
-                });
+                // Reset to a clean auth card per payload.
+                await browser.execute(() => window.localStorage.clear());
                 await browser.refresh();
                 await auth.loaded();
+                // Install the probe AFTER refresh — refresh wipes window globals.
+                await installXssProbe();
 
                 await auth.register(payload);
                 await play.loaded();
 
-                const xss = await browser.execute(
-                    () => (window as unknown as { __xss: number }).__xss,
-                );
-                expect(xss).toBe(0);
+                await expectNoXss();
 
                 // Greeting must render the payload as literal text, not as HTML.
                 await expect(nav.greeting).toHaveText(new RegExp(escapeRegex(payload)));
@@ -110,7 +110,7 @@ describe('Authentication', () => {
             await auth.login('   ');
 
             await expect(auth.errorMessage).toBeDisplayed();
-            await expect(auth.errorMessage).toHaveText(/enter your name/i);
+            await expect(auth.errorMessage).toHaveText(/enter a name/i);
         });
     });
 });

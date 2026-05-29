@@ -1,4 +1,5 @@
 import { BasePage } from '../core/base.page';
+import { byTestId } from '../core/selectors';
 
 export interface ProfileStats {
     wins: number;
@@ -14,31 +15,31 @@ export class ProfilePage extends BasePage {
     readonly readyTestId = 'view-profile';
 
     get nameInput() {
-        return this.byTestId('input-profile-name');
+        return byTestId('input-profile-name');
     }
     get saveButton() {
-        return this.byTestId('btn-save-profile');
+        return byTestId('btn-save-profile');
     }
     get successMessage() {
-        return this.byTestId('profile-message');
+        return byTestId('profile-message');
     }
     get errorMessage() {
-        return this.byTestId('profile-error');
+        return byTestId('profile-error');
     }
     get deleteAccountButton() {
-        return this.byTestId('btn-delete-account');
+        return byTestId('btn-delete-account');
     }
     get createdValue() {
-        return this.byTestId('profile-created');
+        return byTestId('profile-created');
     }
     get winsValue() {
-        return this.byTestId('profile-wins');
+        return byTestId('profile-wins');
     }
     get lossesValue() {
-        return this.byTestId('profile-losses');
+        return byTestId('profile-losses');
     }
     get drawsValue() {
-        return this.byTestId('profile-draws');
+        return byTestId('profile-draws');
     }
 
     /** Replace the username and click Save. */
@@ -53,16 +54,6 @@ export class ProfilePage extends BasePage {
             losses: Number(await this.lossesValue.getText()),
             draws: Number(await this.drawsValue.getText()),
         };
-    }
-
-    async getError(): Promise<string> {
-        const el = this.errorMessage;
-        return (await el.isDisplayed()) ? el.getText() : '';
-    }
-
-    async getSuccess(): Promise<string> {
-        const el = this.successMessage;
-        return (await el.isDisplayed()) ? el.getText() : '';
     }
 
     /**

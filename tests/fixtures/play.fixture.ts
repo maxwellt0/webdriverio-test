@@ -1,4 +1,4 @@
-import { CellState, Difficulty, PlayPage } from '../pages/play.page';
+import { CellState, Difficulty, PlayPage, TerminalStatus, isTerminal } from '../pages/play.page';
 
 const WINNING_LINES: ReadonlyArray<readonly [number, number, number]> = [
     [0, 1, 2],
@@ -30,7 +30,7 @@ function findCompletingMove(board: ReadonlyArray<CellState>, symbol: 'x' | 'o'):
  * else block any immediate threat, else fill center → corners → edges in order.
  * Resolves once the game reaches a terminal status, with the final outcome.
  */
-async function playStrategicGame(play: PlayPage): Promise<'human' | 'computer' | 'draw'> {
+async function playStrategicGame(play: PlayPage): Promise<TerminalStatus> {
     const priorities = [4, 0, 2, 6, 8, 1, 3, 5, 7]; // center, corners, edges
     for (let move = 0; move < 9; move++) {
         const board = await play.getBoardState();
@@ -43,12 +43,13 @@ async function playStrategicGame(play: PlayPage): Promise<'human' | 'computer' |
         await play.playMove(next);
 
         const status = await play.getStatus();
-        if (status === 'human' || status === 'computer' || status === 'draw') {
-            return status;
-        }
+        if (isTerminal(status)) return status;
     }
     await play.waitForGameOver();
-    return (await play.getStatus()) as 'human' | 'computer' | 'draw';
+    const final = await play.getStatus();
+    if (!isTerminal(final))
+        throw new Error(`playStrategicGame: unexpected non-terminal status ${final}`);
+    return final;
 }
 
 /**
@@ -56,7 +57,7 @@ async function playStrategicGame(play: PlayPage): Promise<'human' | 'computer' |
  * (edges first, then corners, then center). Designed to let a rule-based computer (Medium)
  * build its own winning line.
  */
-async function playPassiveGame(play: PlayPage): Promise<'human' | 'computer' | 'draw'> {
+async function playPassiveGame(play: PlayPage): Promise<TerminalStatus> {
     const passive = [1, 3, 5, 7, 0, 2, 6, 8, 4]; // edges, corners, center
     for (let move = 0; move < 9; move++) {
         const board = await play.getBoardState();
@@ -66,12 +67,13 @@ async function playPassiveGame(play: PlayPage): Promise<'human' | 'computer' | '
         await play.playMove(next);
 
         const status = await play.getStatus();
-        if (status === 'human' || status === 'computer' || status === 'draw') {
-            return status;
-        }
+        if (isTerminal(status)) return status;
     }
     await play.waitForGameOver();
-    return (await play.getStatus()) as 'human' | 'computer' | 'draw';
+    const final = await play.getStatus();
+    if (!isTerminal(final))
+        throw new Error(`playPassiveGame: unexpected non-terminal status ${final}`);
+    return final;
 }
 
 /**
@@ -86,8 +88,7 @@ export async function playUntilGameOver(play: PlayPage): Promise<void> {
         const idx = board.findIndex((s) => s === 'empty');
         if (idx < 0) break;
         await play.playMove(idx);
-        const status = await play.getStatus();
-        if (status === 'human' || status === 'computer' || status === 'draw') return;
+        if (isTerminal(await play.getStatus())) return;
     }
     await play.waitForGameOver();
 }
@@ -168,7 +169,6 @@ export async function assertComputerDoesNotOverwriteCells(
             if (before[i] !== 'empty') expect(cell).toBe(before[i]);
         });
 
-        const status = await play.getStatus();
-        if (status === 'human' || status === 'computer' || status === 'draw') break;
+        if (isTerminal(await play.getStatus())) break;
     }
 }

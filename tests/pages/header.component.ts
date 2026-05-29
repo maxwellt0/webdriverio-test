@@ -1,21 +1,19 @@
+import { byTestId } from '../core/selectors';
+
 /**
  * Header — language selector + theme toggle. Present on every view (auth, play,
  * profile, history). Functionally a component, not a page object, hence no
  * `BasePage` inheritance and no `readyTestId`.
  */
 export class HeaderComponent {
-    private byTestId(id: string) {
-        return $(`[data-testid="${id}"]`);
-    }
-
     get langSelect() {
-        return this.byTestId('lang-select');
+        return byTestId('select-language');
     }
     get themeButton() {
-        return this.byTestId('btn-theme');
+        return byTestId('btn-theme');
     }
     get title() {
-        return this.byTestId('app-title');
+        return byTestId('title');
     }
 
     async setLanguage(lang: 'en' | 'fa'): Promise<void> {
