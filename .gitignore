@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test output
+/test-results/
+/reports/
+/allure-results/
+/allure-report/
+/coverage/
+/.nyc_output/
+
+# WebdriverIO / Playwright / Cypress artifacts
+/wdio-logs/
+/screenshots/
+/videos/
+/cypress/screenshots/
+/cypress/videos/
+/playwright-report/
+/.playwright/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Claude Code — keep shared project settings, exclude per-machine overrides
+.claude/settings.local.json
+.claude/memory/
