@@ -71,9 +71,8 @@ describe('History', () => {
         const row = await history.getRow(0);
         expect(row.difficulty).toMatch(/medium/i);
 
-        const expectedResult = finalStatus === 'human' ? /win/i
-            : finalStatus === 'computer' ? /loss/i
-            : /draw/i;
+        const expectedResult =
+            finalStatus === 'human' ? /win/i : finalStatus === 'computer' ? /loss/i : /draw/i;
         expect(row.result).toMatch(expectedResult);
 
         // Date is locale-formatted; we only require non-empty here. Locale-specific

@@ -6,7 +6,7 @@ export default tseslint.config(
     {
         ignores: [
             'node_modules/**',
-            'src/**',          // SUT — do not modify, do not lint
+            'src/**', // SUT — do not modify, do not lint
             'docs/**',
             '.idea/**',
             '.claude/**',

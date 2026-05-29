@@ -14,12 +14,24 @@ export class PlayPage extends BasePage {
     readonly path = '/';
     readonly readyTestId = 'view-play';
 
-    get board() { return this.byTestId('board'); }
-    get status() { return this.byTestId('status'); }
-    get newGameButton() { return this.byTestId('btn-new-game'); }
-    get hintButton() { return this.byTestId('btn-hint'); }
-    get resetButton() { return this.byTestId('btn-reset'); }
-    get difficultySelect() { return this.byTestId('select-difficulty'); }
+    get board() {
+        return this.byTestId('board');
+    }
+    get status() {
+        return this.byTestId('status');
+    }
+    get newGameButton() {
+        return this.byTestId('btn-new-game');
+    }
+    get hintButton() {
+        return this.byTestId('btn-hint');
+    }
+    get resetButton() {
+        return this.byTestId('btn-reset');
+    }
+    get difficultySelect() {
+        return this.byTestId('select-difficulty');
+    }
 
     cell(index: number) {
         return this.byTestId(`cell-${index}`);
@@ -53,17 +65,17 @@ export class PlayPage extends BasePage {
     }
 
     async waitForComputerThinking(timeout = 2000): Promise<void> {
-        await browser.waitUntil(
-            async () => (await this.getStatus()) === 'computer-thinking',
-            { timeout, timeoutMsg: 'Status never became computer-thinking' },
-        );
+        await browser.waitUntil(async () => (await this.getStatus()) === 'computer-thinking', {
+            timeout,
+            timeoutMsg: 'Status never became computer-thinking',
+        });
     }
 
     async waitWhileComputerThinking(timeout = 5000): Promise<void> {
-        await browser.waitUntil(
-            async () => (await this.getStatus()) !== 'computer-thinking',
-            { timeout, timeoutMsg: 'Status stuck on computer-thinking' },
-        );
+        await browser.waitUntil(async () => (await this.getStatus()) !== 'computer-thinking', {
+            timeout,
+            timeoutMsg: 'Status stuck on computer-thinking',
+        });
     }
 
     async waitForGameOver(timeout = 10000): Promise<void> {
@@ -81,7 +93,13 @@ export class PlayPage extends BasePage {
         return (await this.difficultySelect.getValue()) as Difficulty;
     }
 
-    async clickNewGame(): Promise<void> { await this.newGameButton.click(); }
-    async clickHint(): Promise<void> { await this.hintButton.click(); }
-    async clickReset(): Promise<void> { await this.resetButton.click(); }
+    async clickNewGame(): Promise<void> {
+        await this.newGameButton.click();
+    }
+    async clickHint(): Promise<void> {
+        await this.hintButton.click();
+    }
+    async clickReset(): Promise<void> {
+        await this.resetButton.click();
+    }
 }

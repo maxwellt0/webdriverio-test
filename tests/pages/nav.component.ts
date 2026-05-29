@@ -10,13 +10,27 @@ export class NavComponent {
         return $(`[data-testid="${id}"]`);
     }
 
-    get root() { return this.byTestId('nav'); }
-    get greeting() { return this.byTestId('nav-hello'); }
-    get avatar() { return this.byTestId('nav-avatar'); }
-    get playButton() { return this.byTestId('nav-play'); }
-    get profileButton() { return this.byTestId('nav-profile'); }
-    get historyButton() { return this.byTestId('nav-history'); }
-    get logoutButton() { return this.byTestId('btn-logout'); }
+    get root() {
+        return this.byTestId('nav');
+    }
+    get greeting() {
+        return this.byTestId('nav-hello');
+    }
+    get avatar() {
+        return this.byTestId('nav-avatar');
+    }
+    get playButton() {
+        return this.byTestId('nav-play');
+    }
+    get profileButton() {
+        return this.byTestId('nav-profile');
+    }
+    get historyButton() {
+        return this.byTestId('nav-history');
+    }
+    get logoutButton() {
+        return this.byTestId('btn-logout');
+    }
 
     async isVisible(): Promise<boolean> {
         return this.root.isDisplayed();

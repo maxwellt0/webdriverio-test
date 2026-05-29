@@ -13,15 +13,33 @@ export class ProfilePage extends BasePage {
     readonly path = '/';
     readonly readyTestId = 'view-profile';
 
-    get nameInput() { return this.byTestId('input-profile-name'); }
-    get saveButton() { return this.byTestId('btn-save-profile'); }
-    get successMessage() { return this.byTestId('profile-message'); }
-    get errorMessage() { return this.byTestId('profile-error'); }
-    get deleteAccountButton() { return this.byTestId('btn-delete-account'); }
-    get createdValue() { return this.byTestId('profile-created'); }
-    get winsValue() { return this.byTestId('profile-wins'); }
-    get lossesValue() { return this.byTestId('profile-losses'); }
-    get drawsValue() { return this.byTestId('profile-draws'); }
+    get nameInput() {
+        return this.byTestId('input-profile-name');
+    }
+    get saveButton() {
+        return this.byTestId('btn-save-profile');
+    }
+    get successMessage() {
+        return this.byTestId('profile-message');
+    }
+    get errorMessage() {
+        return this.byTestId('profile-error');
+    }
+    get deleteAccountButton() {
+        return this.byTestId('btn-delete-account');
+    }
+    get createdValue() {
+        return this.byTestId('profile-created');
+    }
+    get winsValue() {
+        return this.byTestId('profile-wins');
+    }
+    get lossesValue() {
+        return this.byTestId('profile-losses');
+    }
+    get drawsValue() {
+        return this.byTestId('profile-draws');
+    }
 
     /** Replace the username and click Save. */
     async rename(newName: string): Promise<void> {

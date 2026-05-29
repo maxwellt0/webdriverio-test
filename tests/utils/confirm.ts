@@ -24,7 +24,9 @@ export async function stubConfirm(response: boolean): Promise<void> {
 
 /** How many times the stubbed confirm was called since the most recent `stubConfirm`. */
 export async function confirmCallCount(): Promise<number> {
-    return browser.execute(() => (window as unknown as { __confirmCalls?: number }).__confirmCalls ?? 0);
+    return browser.execute(
+        () => (window as unknown as { __confirmCalls?: number }).__confirmCalls ?? 0,
+    );
 }
 
 /**
@@ -40,4 +42,14 @@ export async function withConfirm<T>(response: boolean, action: () => Promise<T>
 /** Reload the page to restore native `window.confirm`. Use only if a later spec needs the real dialog. */
 export async function clearConfirmStub(): Promise<void> {
     await browser.refresh();
+}
+
+/** Intent-named one-liner: any subsequent `window.confirm` resolves to OK / true. */
+export async function acceptNextConfirm(): Promise<void> {
+    await stubConfirm(true);
+}
+
+/** Intent-named one-liner: any subsequent `window.confirm` resolves to Cancel / false. */
+export async function cancelNextConfirm(): Promise<void> {
+    await stubConfirm(false);
 }

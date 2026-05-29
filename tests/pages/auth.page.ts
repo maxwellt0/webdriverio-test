@@ -8,10 +8,18 @@ export class AuthPage extends BasePage {
     readonly path = '/';
     readonly readyTestId = 'auth-form';
 
-    get nameInput() { return this.byTestId('auth-name'); }
-    get submitButton() { return this.byTestId('auth-submit'); }
-    get switchModeLink() { return this.byTestId('btn-switch-mode'); }
-    get errorMessage() { return this.byTestId('auth-error'); }
+    get nameInput() {
+        return this.byTestId('auth-name');
+    }
+    get submitButton() {
+        return this.byTestId('auth-submit');
+    }
+    get switchModeLink() {
+        return this.byTestId('btn-switch-mode');
+    }
+    get errorMessage() {
+        return this.byTestId('auth-error');
+    }
 
     /** Current mode reflected by the `data-mode` attribute on the form. */
     async getMode(): Promise<'register' | 'login'> {

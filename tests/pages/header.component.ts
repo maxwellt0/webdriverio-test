@@ -8,10 +8,18 @@ export class HeaderComponent {
         return $(`[data-testid="${id}"]`);
     }
 
-    get langSelect() { return this.byTestId('lang-select'); }
-    get themeButton() { return this.byTestId('btn-theme'); }
-    get title() { return this.byTestId('app-title'); }
-    get subtitle() { return this.byTestId('app-subtitle'); }
+    get langSelect() {
+        return this.byTestId('lang-select');
+    }
+    get themeButton() {
+        return this.byTestId('btn-theme');
+    }
+    get title() {
+        return this.byTestId('app-title');
+    }
+    get subtitle() {
+        return this.byTestId('app-subtitle');
+    }
 
     async setLanguage(lang: 'en' | 'fa'): Promise<void> {
         await this.langSelect.selectByAttribute('value', lang);
@@ -41,8 +49,6 @@ export class HeaderComponent {
 
     /** Document-level reflection of the current theme (light/dark). */
     async getDocumentTheme(): Promise<string> {
-        return browser.execute(
-            () => document.documentElement.getAttribute('data-theme') ?? '',
-        );
+        return browser.execute(() => document.documentElement.getAttribute('data-theme') ?? '');
     }
 }

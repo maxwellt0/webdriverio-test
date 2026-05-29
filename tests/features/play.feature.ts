@@ -1,9 +1,14 @@
-import { CellState, PlayPage } from '../pages/play.page';
+import { CellState, Difficulty, PlayPage } from '../pages/play.page';
 
 const WINNING_LINES: ReadonlyArray<readonly [number, number, number]> = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],   // rows
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],   // cols
-    [0, 4, 8], [2, 4, 6],              // diagonals
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8], // rows
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8], // cols
+    [0, 4, 8],
+    [2, 4, 6], // diagonals
 ];
 
 /** Returns the empty cell that would complete a winning line for `symbol`, or -1. */
@@ -114,4 +119,29 @@ export async function playUntilLoss(play: PlayPage, maxAttempts = 8): Promise<bo
         if (outcome === 'computer') return true;
     }
     return false;
+}
+
+/**
+ * Convenience wrapper: set the difficulty (default `easy`), then force a human win.
+ * Throws if the attempt cap is exhausted — use the lower-level `playUntilWin` if
+ * the caller wants to inspect the boolean outcome.
+ */
+export async function winOneGame(play: PlayPage, difficulty: Difficulty = 'easy'): Promise<void> {
+    await play.setDifficulty(difficulty);
+    const won = await playUntilWin(play);
+    if (!won) throw new Error(`winOneGame: could not win on ${difficulty} within attempt cap`);
+}
+
+/**
+ * Convenience wrapper: set the difficulty (default `medium` — Easy is too random
+ * to lose reliably; Hard is currently broken per #BUG-1), then force a human loss.
+ * Throws if the attempt cap is exhausted.
+ */
+export async function loseOneGame(
+    play: PlayPage,
+    difficulty: Difficulty = 'medium',
+): Promise<void> {
+    await play.setDifficulty(difficulty);
+    const lost = await playUntilLoss(play);
+    if (!lost) throw new Error(`loseOneGame: could not lose on ${difficulty} within attempt cap`);
 }

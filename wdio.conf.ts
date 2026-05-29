@@ -10,7 +10,7 @@ if (process.env.CHROME_BIN) {
 
 const capability: WebdriverIO.Capabilities = {
     browserName: 'chrome',
-    'goog:chromeOptions': chromeOptions
+    'goog:chromeOptions': chromeOptions,
 };
 if (process.env.CHROMEDRIVER_BIN) {
     capability['wdio:chromedriverOptions'] = { binary: process.env.CHROMEDRIVER_BIN };
@@ -19,7 +19,7 @@ if (process.env.CHROMEDRIVER_BIN) {
 export const config: WebdriverIO.Config = {
     runner: 'local',
 
-    specs: ['./tests/specs/**/*.test.ts'],
+    specs: ['./tests/specs/**/*.spec.ts'],
     maxInstances: 1,
 
     capabilities: [capability],
@@ -34,12 +34,12 @@ export const config: WebdriverIO.Config = {
     reporters: ['spec'],
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000
+        timeout: 60000,
     },
 
     beforeTest: async function () {
         await browser.url('/');
         await browser.execute(() => window.localStorage.clear());
         await browser.url('/');
-    }
+    },
 };

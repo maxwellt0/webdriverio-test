@@ -1,42 +1,42 @@
 {
-  "name": "webdriverio-test",
-  "version": "1.0.0",
-  "private": true,
-  "description": "SDET take-home: WebdriverIO tests for the Tic-Tac-Toe SUT (index.html).",
-  "scripts": {
-    "serve": "http-server ./src -p 8080 -c-1 -o",
-    "test": "wdio run ./wdio.conf.ts",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "docker:up": "docker compose up -d app",
-    "docker:down": "docker compose down --remove-orphans",
-    "docker:test": "docker compose run --rm --build tests"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@types/node": "^22.10.0",
-    "@wdio/cli": "^9.5.0",
-    "@wdio/globals": "^9.5.0",
-    "@wdio/local-runner": "^9.5.0",
-    "@wdio/mocha-framework": "^9.5.0",
-    "@wdio/spec-reporter": "^9.5.0",
-    "eslint": "^9.17.0",
-    "eslint-config-prettier": "^9.1.0",
-    "expect-webdriverio": "^5.6.5",
-    "http-server": "^14.1.1",
-    "prettier": "^3.4.2",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0"
-  },
-  "overrides": {
-    "serialize-javascript": "^6.0.2",
-    "debug": "^4.3.7",
-    "diff": "^5.2.0",
-    "js-yaml": "^4.1.0",
-    "minimatch": "^9.0.5"
-  }
+    "name": "webdriverio-test",
+    "version": "1.0.0",
+    "private": true,
+    "description": "SDET take-home: WebdriverIO tests for the Tic-Tac-Toe SUT (index.html).",
+    "scripts": {
+        "serve": "http-server ./src -p 8080 -c-1 -o",
+        "test": "wdio run ./wdio.conf.ts",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "docker:up": "docker compose up -d app",
+        "docker:down": "docker compose down --remove-orphans",
+        "docker:test": "docker compose run --rm --build tests"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.17.0",
+        "@types/node": "^22.10.0",
+        "@wdio/cli": "^9.5.0",
+        "@wdio/globals": "^9.5.0",
+        "@wdio/local-runner": "^9.5.0",
+        "@wdio/mocha-framework": "^9.5.0",
+        "@wdio/spec-reporter": "^9.5.0",
+        "eslint": "^9.17.0",
+        "eslint-config-prettier": "^9.1.0",
+        "expect-webdriverio": "^5.6.5",
+        "http-server": "^14.1.1",
+        "prettier": "^3.4.2",
+        "tsx": "^4.19.2",
+        "typescript": "^5.7.2",
+        "typescript-eslint": "^8.18.0"
+    },
+    "overrides": {
+        "serialize-javascript": "^6.0.2",
+        "debug": "^4.3.7",
+        "diff": "^5.2.0",
+        "js-yaml": "^4.1.0",
+        "minimatch": "^9.0.5"
+    }
 }

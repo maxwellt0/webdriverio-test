@@ -19,16 +19,24 @@ export async function readStorage<T = unknown>(key: StorageKey): Promise<T | nul
     return browser.execute((k: string) => {
         const v = window.localStorage.getItem(k);
         if (v === null) return null;
-        try { return JSON.parse(v) as T; } catch { return v as unknown as T; }
-    }, key);
+        try {
+            return JSON.parse(v) as unknown;
+        } catch {
+            return v;
+        }
+    }, key) as Promise<T | null>;
 }
 
 /** Write a raw string or JSON-serialize an object. */
 export async function writeStorage(key: StorageKey, value: unknown): Promise<void> {
     const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-    await browser.execute((k: string, v: string) => {
-        window.localStorage.setItem(k, v);
-    }, key, serialized);
+    await browser.execute(
+        (k: string, v: string) => {
+            window.localStorage.setItem(k, v);
+        },
+        key,
+        serialized,
+    );
 }
 
 export interface SeedUserOptions {
@@ -50,7 +58,10 @@ export async function seedUser(opts: SeedUserOptions): Promise<void> {
     await browser.execute((u: SeedUserOptions) => {
         let users: Record<string, unknown> = {};
         try {
-            users = JSON.parse(window.localStorage.getItem('users') ?? '{}') as Record<string, unknown>;
+            users = JSON.parse(window.localStorage.getItem('users') ?? '{}') as Record<
+                string,
+                unknown
+            >;
         } catch {
             users = {};
         }

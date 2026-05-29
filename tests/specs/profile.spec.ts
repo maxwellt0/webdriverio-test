@@ -1,5 +1,4 @@
 import { ProfilePage } from '../pages/profile.page';
-import { PlayPage } from '../pages/play.page';
 import { AuthPage } from '../pages/auth.page';
 import { NavComponent } from '../pages/nav.component';
 import { registerAndLand } from '../features/auth.feature';
@@ -18,7 +17,6 @@ import { escapeRegex } from '../utils/regex';
 describe('Profile', () => {
     const auth = new AuthPage();
     const profile = new ProfilePage();
-    const play = new PlayPage();
     const nav = new NavComponent();
 
     let currentName: string;
@@ -73,7 +71,8 @@ describe('Profile', () => {
     it('[TC-PRF-05] Delete Account — Cancel keeps the user, OK removes it', async () => {
         await cancelNextConfirm();
         await profile.deleteAccount();
-        await expect(profile.readyTestId === 'view-profile' ? profile.nameInput : profile.nameInput).toBeDisplayed();
+        // Cancel keeps the user on the Profile view, account intact.
+        await expect(profile.nameInput).toBeDisplayed();
 
         await acceptNextConfirm();
         await profile.deleteAccount();
@@ -92,9 +91,7 @@ describe('Profile', () => {
             await profile.rename(payload);
             await expect(profile.successMessage).toBeDisplayed();
 
-            const xss = await browser.execute(
-                () => (window as unknown as { __xss: number }).__xss,
-            );
+            const xss = await browser.execute(() => (window as unknown as { __xss: number }).__xss);
             expect(xss).toBe(0);
 
             // Visit nav greeting; ensure the payload renders as text, not as HTML.

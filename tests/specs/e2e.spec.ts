@@ -5,7 +5,7 @@ import { HistoryPage } from '../pages/history.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
 import { registerAndLand } from '../features/auth.feature';
-import { playUntilLoss, playUntilWin } from '../features/play.feature';
+import { loseOneGame, playUntilGameOver, winOneGame } from '../features/play.feature';
 import { readStorage } from '../utils/storage';
 import { escapeRegex } from '../utils/regex';
 
@@ -28,16 +28,12 @@ describe('End-to-end flows', () => {
         const name = await registerAndLand();
 
         // 2. Win a game on Easy
-        await play.setDifficulty('easy');
-        const won = await playUntilWin(play);
-        expect(won).toBe(true);
+        await winOneGame(play, 'easy');
         expect(await play.getStatus()).toBe('human');
 
         // 3. Lose a game on Medium
         await play.clickNewGame();
-        await play.setDifficulty('medium');
-        const lost = await playUntilLoss(play);
-        expect(lost).toBe(true);
+        await loseOneGame(play, 'medium');
         expect(await play.getStatus()).toBe('computer');
 
         // 4. See the history — two rows, newest first
@@ -77,8 +73,8 @@ describe('End-to-end flows', () => {
         await play.setDifficulty('medium');
 
         // Play one game so the user has history to carry across sessions.
-        const won = await playUntilWin(play);
-        expect(won).toBe(true);
+        // We don't care about the outcome for this assertion — just need a finished game.
+        await playUntilGameOver(play);
 
         // Log out — global preferences (theme / language) stay because they are global,
         // session is cleared, user record is kept.

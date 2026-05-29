@@ -25,10 +25,10 @@ describe('Navigation', () => {
 
     it('[TC-NAV-01] nav appears after login with all entries', async () => {
         expect(await nav.isVisible()).toBe(true);
-        await expect(nav.playBtn).toBeDisplayed();
-        await expect(nav.profileBtn).toBeDisplayed();
-        await expect(nav.historyBtn).toBeDisplayed();
-        await expect(nav.logoutBtn).toBeDisplayed();
+        await expect(nav.playButton).toBeDisplayed();
+        await expect(nav.profileButton).toBeDisplayed();
+        await expect(nav.historyButton).toBeDisplayed();
+        await expect(nav.logoutButton).toBeDisplayed();
         await expect(nav.greeting).toBeDisplayed();
         await expect(nav.avatar).toBeDisplayed();
     });

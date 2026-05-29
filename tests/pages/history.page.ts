@@ -14,8 +14,12 @@ export class HistoryPage extends BasePage {
     readonly path = '/';
     readonly readyTestId = 'view-history';
 
-    get emptyState() { return this.byTestId('history-empty'); }
-    get clearButton() { return this.byTestId('btn-clear-history'); }
+    get emptyState() {
+        return this.byTestId('history-empty');
+    }
+    get clearButton() {
+        return this.byTestId('btn-clear-history');
+    }
 
     async isEmpty(): Promise<boolean> {
         return this.emptyState.isDisplayed();
