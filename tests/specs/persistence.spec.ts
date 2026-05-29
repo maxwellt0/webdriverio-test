@@ -2,7 +2,7 @@ import { AuthPage } from '../pages/auth.page';
 import { PlayPage } from '../pages/play.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../features/auth.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
 import { readStorage } from '../utils/storage';
 
 /**

@@ -39,7 +39,7 @@ Other:
 - `npm run typecheck` — `tsc --noEmit`.
 - `npm run lint` / `npm run lint:fix` — ESLint 9 (flat config) over `tests/` and `wdio.conf.ts`.
 - `npm run format` / `npm run format:check` — Prettier 3. SUT (`src/`) and docs (`*.md`) are ignored.
-- Run a single spec: append `-- --spec tests/specs/<name>.test.ts` to `npm test` or `npm run docker:test`.
+1- Run a single spec: append `-- --spec tests/specs/<name>.spec.ts` to `npm test` or `npm run docker:test`.
 
 ## Layout
 
@@ -48,7 +48,7 @@ Other:
 - `Dockerfile.app` — `nginx:alpine` + `COPY src/`.
 - `Dockerfile.tests` — `node:22-bookworm-slim` with `chromium` + `chromium-driver` from Debian repos; installs deps via `npm ci`, copies `tsconfig.json` / `wdio.conf.ts` / `tests/`, runs WDIO. Exports `CHROME_BIN` and `CHROMEDRIVER_BIN` so the config uses the system binaries instead of WDIO's auto-managed Chrome for Testing.
 - `wdio.conf.ts` — env-driven: reads `WDIO_BASE_URL`, `CHROME_BIN`, `CHROMEDRIVER_BIN`, and `HEADED`. Defaults assume host-side execution with WDIO's bundled driver management. The `tests` compose service sets `WDIO_BASE_URL=http://app`; `CHROME_*` env comes from the Dockerfile. `beforeTest` clears `localStorage` and reloads, so each spec starts from a logged-out, history-free state.
-- `tests/specs/**/*.test.ts` — specs.
+- `tests/` — `core/` (abstract `BasePage`), `pages/` (concrete page objects + `nav.component.ts`, `header.component.ts`), `fixtures/` (workflow helpers — `registerAndLand`, `winOneGame`, `assertComputerDoesNotOverwriteCells`, …), `specs/**/*.spec.ts` (Mocha specs), `utils/` (stateless helpers — confirm stub, storage, test-data, regex).
 - `tsconfig.json` — `noEmit`; WDIO/tsx run TS directly. Ambient types for `browser`, `$`, `expect`, `describe`, `it` come from the `types` array.
 
 ## SUT-specific testing notes

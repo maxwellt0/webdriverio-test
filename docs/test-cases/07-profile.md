@@ -48,7 +48,7 @@ Implements [plan §5.7](../TESTPLAN.md). For conventions / preconditions / test 
 
 ### TC-PRF-04
 
-**Rename to own name in different case succeeds (no self-collision)** — P0 — plan §5.7
+**Rename to own name in different case succeeds (no self-collision)** — P1 — plan §5.7
 
 - **Precondition**: PRE-USER as `Sara`.
 - **Steps**:

@@ -17,16 +17,9 @@ export class HeaderComponent {
     get title() {
         return this.byTestId('app-title');
     }
-    get subtitle() {
-        return this.byTestId('app-subtitle');
-    }
 
     async setLanguage(lang: 'en' | 'fa'): Promise<void> {
         await this.langSelect.selectByAttribute('value', lang);
-    }
-
-    async getLanguage(): Promise<string> {
-        return this.langSelect.getValue();
     }
 
     async toggleTheme(): Promise<void> {

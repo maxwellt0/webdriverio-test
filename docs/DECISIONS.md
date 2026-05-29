@@ -12,24 +12,24 @@ Technical and design decisions made building the test automation, with the ratio
 tests/
 ├── core/       # Abstract base classes (base.page.ts, future base.component.ts, etc.)
 ├── pages/      # Concrete page objects (auth.page.ts, play.page.ts, profile.page.ts, history.page.ts)
-├── features/   # Higher-level workflows that compose multiple page actions
-│               # (e.g. register-and-play.feature.ts, finish-game.feature.ts)
+├── fixtures/   # Higher-level test helpers — workflow orchestration and shared
+│               # multi-step assertions (auth.fixture.ts, play.fixture.ts)
 ├── specs/      # Mocha spec files — one per area, mirrors docs/test-cases/
 └── utils/      # Cross-cutting helpers (test-data generators, confirm-dialog handler,
                 # localStorage helpers, i18n string map, etc.)
 ```
 
-**Naming convention:** kebab-case filenames with a role suffix — `base.page.ts`, `auth.page.ts`, `register-and-play.feature.ts`, `<area>.spec.ts`. Class names stay PascalCase (`BasePage`, `AuthPage`, …) so the file/class distinction is unambiguous at a glance.
+**Naming convention:** kebab-case filenames with a role suffix — `base.page.ts`, `auth.page.ts`, `auth.fixture.ts`, `<area>.spec.ts`. Class names stay PascalCase (`BasePage`, `AuthPage`, …) so the file/class distinction is unambiguous at a glance.
 
 **Why:**
-- The SUT is small (one HTML file, ~7 testable views), so a deep / role-rich structure (e.g. separate `components/`, `fixtures/`, `selectors/`, `actions/`) would be over-engineering. Five folders cover the necessary separations without the bureaucracy.
-- The separation of `pages/` from `features/` keeps individual page objects narrow (one page = one set of locators + atomic actions) while still giving a home for the slightly higher-level user-journey helpers that the critical-flow specs will compose.
+- The SUT is small (one HTML file, ~7 testable views), so a deep / role-rich structure (e.g. separate `components/`, `selectors/`, `actions/`, `workflows/`) would be over-engineering. Five folders cover the necessary separations without the bureaucracy.
+- The separation of `pages/` from `fixtures/` keeps individual page objects narrow (one page = one set of locators + atomic actions) while still giving a home for the slightly higher-level user-journey helpers and shared multi-step assertions that the critical-flow specs compose.
 - `core/` exists specifically so the abstract `BasePage` (and any future siblings) don't sit alongside concrete pages — concrete pages are an inheritance leaf, abstractions are not.
 - `utils/` is a deliberate catch-all; anything that has no clean home goes there with a justification in its own file header.
 
 **How to apply:**
 - New page object → `tests/pages/<Name>Page.ts`, extending `BasePage` from `tests/core/`.
-- New cross-page workflow → `tests/features/<workflow>.ts`. If it would only ever be called from one spec, inline it instead.
+- New cross-page workflow or shared assertion → `tests/fixtures/<area>.fixture.ts`. If it would only ever be called from one spec, inline it instead.
 - New helper → `tests/utils/`. If a util grows into a class or starts owning state, consider promoting it to `core/`.
 - Specs (`tests/specs/`) only consume the above. Spec files should not contain low-level WDIO calls beyond `before` / `beforeEach` hooks; everything goes through page / feature / util modules.
 

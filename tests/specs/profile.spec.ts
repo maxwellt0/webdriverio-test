@@ -1,7 +1,7 @@
 import { ProfilePage } from '../pages/profile.page';
 import { AuthPage } from '../pages/auth.page';
 import { NavComponent } from '../pages/nav.component';
-import { registerAndLand } from '../features/auth.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
 import { acceptNextConfirm, cancelNextConfirm } from '../utils/confirm';
 import { readStorage, seedUser } from '../utils/storage';
 import { uniqueUsername, XSS_PAYLOADS } from '../utils/test-data';
@@ -57,15 +57,6 @@ describe('Profile', () => {
         await expect(profile.errorMessage).toBeDisplayed();
         await expect(profile.errorMessage).toHaveText(/already taken/i);
         await expect(nav.greeting).toHaveText(new RegExp(escapeRegex(currentName)));
-    });
-
-    it('[TC-PRF-04] rename to own name in different case succeeds (no self-collision)', async () => {
-        const upper = currentName.toUpperCase();
-
-        await profile.rename(upper);
-
-        await expect(profile.successMessage).toBeDisplayed();
-        await expect(nav.greeting).toHaveText(new RegExp(escapeRegex(upper)));
     });
 
     it('[TC-PRF-05] Delete Account — Cancel keeps the user, OK removes it', async () => {

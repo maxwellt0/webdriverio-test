@@ -9,11 +9,6 @@
 
 export type StorageKey = 'theme' | 'lang' | 'session' | 'users';
 
-/** Clear all storage on the current origin. */
-export async function clearStorage(): Promise<void> {
-    await browser.execute(() => window.localStorage.clear());
-}
-
 /** Read a key. If the stored value is JSON, returns the parsed object; otherwise the raw string. */
 export async function readStorage<T = unknown>(key: StorageKey): Promise<T | null> {
     return browser.execute((k: string) => {
@@ -25,18 +20,6 @@ export async function readStorage<T = unknown>(key: StorageKey): Promise<T | nul
             return v;
         }
     }, key) as Promise<T | null>;
-}
-
-/** Write a raw string or JSON-serialize an object. */
-export async function writeStorage(key: StorageKey, value: unknown): Promise<void> {
-    const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-    await browser.execute(
-        (k: string, v: string) => {
-            window.localStorage.setItem(k, v);
-        },
-        key,
-        serialized,
-    );
 }
 
 export interface SeedUserOptions {
@@ -51,8 +34,7 @@ export interface SeedUserOptions {
  * without going through the register flow (TC-REG-05 duplicate-name, TC-DIF-01 difficulty
  * persistence, TC-HIS-09 100-row cap, etc.).
  *
- * Does not set the session — the user is not signed in. Combine with the auth flow
- * or `writeStorage('session', ...)` if needed.
+ * Does not set the session — the user is not signed in. Combine with the auth flow if needed.
  */
 export async function seedUser(opts: SeedUserOptions): Promise<void> {
     await browser.execute((u: SeedUserOptions) => {

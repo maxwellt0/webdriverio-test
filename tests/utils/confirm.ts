@@ -8,48 +8,19 @@
  * SUT proceeds inline.
  */
 
-/**
- * Install a stub that makes the next (and any subsequent) `window.confirm` return `response`.
- * Call this *before* the action that triggers the dialog.
- */
-export async function stubConfirm(response: boolean): Promise<void> {
+/** Install a stub that makes any subsequent `window.confirm` return `response`. */
+async function stubConfirm(response: boolean): Promise<void> {
     await browser.execute((r: boolean) => {
-        (window as unknown as { __confirmCalls: number }).__confirmCalls = 0;
-        window.confirm = () => {
-            (window as unknown as { __confirmCalls: number }).__confirmCalls += 1;
-            return r;
-        };
+        window.confirm = () => r;
     }, response);
 }
 
-/** How many times the stubbed confirm was called since the most recent `stubConfirm`. */
-export async function confirmCallCount(): Promise<number> {
-    return browser.execute(
-        () => (window as unknown as { __confirmCalls?: number }).__confirmCalls ?? 0,
-    );
-}
-
-/**
- * Run an action with a one-shot confirm response, asserting (optionally) that the dialog
- * actually appeared. The stub remains installed afterwards — call `clearConfirmStub` to
- * remove it, or simply reload the page (which restores native `confirm`).
- */
-export async function withConfirm<T>(response: boolean, action: () => Promise<T>): Promise<T> {
-    await stubConfirm(response);
-    return action();
-}
-
-/** Reload the page to restore native `window.confirm`. Use only if a later spec needs the real dialog. */
-export async function clearConfirmStub(): Promise<void> {
-    await browser.refresh();
-}
-
-/** Intent-named one-liner: any subsequent `window.confirm` resolves to OK / true. */
+/** Any subsequent `window.confirm` resolves to OK / true. */
 export async function acceptNextConfirm(): Promise<void> {
     await stubConfirm(true);
 }
 
-/** Intent-named one-liner: any subsequent `window.confirm` resolves to Cancel / false. */
+/** Any subsequent `window.confirm` resolves to Cancel / false. */
 export async function cancelNextConfirm(): Promise<void> {
     await stubConfirm(false);
 }

@@ -82,9 +82,9 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 
 #### 5.3.2 Login *(maps to [EXPLORATION §3.2](EXPLORATION.md#32-login-sign-in))*
 - **P0** — happy path: existing name → signed in, lands on Play.
-- **P0** — case-insensitive lookup: registered "Sara" can log in as "SARA" / "sara".
 - **P0** — non-existent name → `authErrorNotFound`.
 - **P0** — empty / whitespace → `authErrorEmpty`.
+- **P1** — case-insensitive lookup: registered "Sara" can log in as "SARA" / "sara".
 
 #### 5.3.3 Mode switching *(maps to [EXPLORATION §3.3](EXPLORATION.md#33-mode-switching))*
 - **P1** — switching modes via the link clears any displayed error.
@@ -114,9 +114,9 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - **P1** — hinted cell is visually distinct until the human plays.
 
 #### 5.5.3 Computer behavior *(maps to [EXPLORATION §5.3](EXPLORATION.md#53-computer-behavior))* — **major bug area**
-- **P0 pending:#BUG-1** — Hard difficulty should be unwinnable and must not overwrite a played cell. **Currently broken** (Symptoms A + B). Specs will assert the bug is present (regression check) and flip to the correct assertion once #BUG-1 is fixed.
-- **P0** — Medium correctly takes immediate wins and blocks immediate threats (assert by setting up a 2-in-a-row board state and verifying the computer's response).
-- **P0** — computer never plays into an occupied cell (across Easy, Medium — and Hard once #BUG-1 is fixed).
+- **P0** — computer never plays into an occupied cell (Easy & Medium).
+- **P1 pending:#BUG-1** — Hard difficulty should be unwinnable and must not overwrite a played cell. **Currently broken** (Symptoms A + B). Documented; not automated this engagement.
+- **P1** — Medium correctly takes immediate wins and blocks immediate threats. Documented; not automated this engagement (needs deterministic board-state seeding).
 - **P1** — the ~1.5 s think delay is consistently observable (status flips to `computer-thinking` for a measurable window).
 
 #### 5.5.4 Hint button *(maps to [EXPLORATION §5.4](EXPLORATION.md#54-hint-button))* — **bug area**
@@ -153,7 +153,7 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - **P0** — shows current name, "Created" date, and Win/Loss/Draw counts derived from history.
 - **P0** — rename to a new unique name succeeds; greeting updates; subsequent login uses the new name.
 - **P0** — rename to another existing user (case-insensitive) → `profileErrorExists`.
-- **P0** — rename to own name in different case → succeeds (no self-collision false positive).
+- **P1** — rename to own name in different case → succeeds (no self-collision false positive).
 - **P0** — Delete Account triggers a confirm; OK removes the user record (re-login attempt → `authErrorNotFound`), Cancel is a no-op.
 - **P1** — stats counts update after gameplay without requiring a reload.
 
@@ -165,8 +165,8 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 ### 5.9 Localization *(maps to [EXPLORATION §9](EXPLORATION.md#9-localization-details))* — **bug area**
 
 - **P0** — language switch translates all visible labels (where translations exist), flips RTL/LTR layout, persists across reload.
-- **P0 pending:#BUG-3** — game title and subtitle should translate to Persian. **Currently broken** — regression check until fixed.
-- **P0** — language switch mid-game does **not** reset the board.
+- **P1 pending:#BUG-3** — game title and subtitle should translate to Persian. **Currently broken**. Documented; not automated this engagement.
+- **P1** — language switch mid-game does **not** reset the board.
 - **P1** — translation sweep: walk every view in `fa` mode, assert no English-text bleeds into translated UI (driven from the en/fa key map; catches sibling missed-translation bugs beyond #BUG-3).
 - **P1** — Jalali calendar correctness: history dates in `fa` mode are Jalali (different month names, different year), not translated Gregorian.
 

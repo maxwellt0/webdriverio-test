@@ -3,7 +3,7 @@ import { PlayPage } from '../pages/play.page';
 import { ProfilePage } from '../pages/profile.page';
 import { HistoryPage } from '../pages/history.page';
 import { NavComponent } from '../pages/nav.component';
-import { registerAndLand } from '../features/auth.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
 import { readStorage } from '../utils/storage';
 
 /**

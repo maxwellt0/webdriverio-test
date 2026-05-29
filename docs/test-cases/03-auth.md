@@ -153,7 +153,7 @@ Covers Register (§3.1), Login (§3.2), Mode switching (§3.3).
 
 ### TC-LGN-02
 
-**Case-insensitive lookup** — P0 — plan §5.3.2
+**Case-insensitive lookup** — P1 — plan §5.3.2
 
 - **Precondition**: PRE-CLEAN; user `Sara` exists.
 - **Steps**:

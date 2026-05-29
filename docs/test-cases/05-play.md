@@ -120,7 +120,7 @@ Covers Status pill (§5.1), Board (§5.2), Computer behavior (§5.3), Hint (§5.
 
 ### TC-AI-02
 
-**Computer never plays into an occupied cell on Hard** — P0, `pending:`[`#BUG-1`](../BUGS.md#bug-1--hard-difficulty-weak-play-and-overwrites-the-humans-move) — plan §5.5.3
+**Computer never plays into an occupied cell on Hard** — P1, `pending:`[`#BUG-1`](../BUGS.md#bug-1--hard-difficulty-weak-play-and-overwrites-the-humans-move) — plan §5.5.3
 
 - **Precondition**: PRE-USER; difficulty `hard`.
 - **Steps**: Same as TC-AI-01 but with difficulty `hard`.
@@ -132,7 +132,7 @@ Covers Status pill (§5.1), Board (§5.2), Computer behavior (§5.3), Hint (§5.
 
 ### TC-AI-03
 
-**Medium takes an immediate win** — P0 — plan §5.5.3
+**Medium takes an immediate win** — P1 — plan §5.5.3
 
 - **Precondition**: PRE-USER; difficulty `medium`.
 - **Steps**:
@@ -147,7 +147,7 @@ Covers Status pill (§5.1), Board (§5.2), Computer behavior (§5.3), Hint (§5.
 
 ### TC-AI-04
 
-**Medium blocks an immediate human threat** — P0 — plan §5.5.3
+**Medium blocks an immediate human threat** — P1 — plan §5.5.3
 
 - **Precondition**: PRE-USER; difficulty `medium`.
 - **Steps**:
@@ -160,7 +160,7 @@ Covers Status pill (§5.1), Board (§5.2), Computer behavior (§5.3), Hint (§5.
 
 ### TC-AI-05
 
-**Hard is unwinnable from any opening** — P0, `pending:`[`#BUG-1`](../BUGS.md#bug-1--hard-difficulty-weak-play-and-overwrites-the-humans-move) — plan §5.5.3
+**Hard is unwinnable from any opening** — P1, `pending:`[`#BUG-1`](../BUGS.md#bug-1--hard-difficulty-weak-play-and-overwrites-the-humans-move) — plan §5.5.3
 
 - **Precondition**: PRE-USER; difficulty `hard`.
 - **Steps**: Play 3 full games using different openings (corner cell-0, edge cell-1, center cell-4), always playing the move with the strongest local heuristic.

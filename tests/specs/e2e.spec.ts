@@ -4,8 +4,8 @@ import { ProfilePage } from '../pages/profile.page';
 import { HistoryPage } from '../pages/history.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../features/auth.feature';
-import { loseOneGame, playUntilGameOver, winOneGame } from '../features/play.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
+import { loseOneGame, playUntilGameOver, winOneGame } from '../fixtures/play.fixture';
 import { readStorage } from '../utils/storage';
 import { escapeRegex } from '../utils/regex';
 

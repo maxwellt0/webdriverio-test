@@ -145,3 +145,30 @@ export async function loseOneGame(
     const lost = await playUntilLoss(play);
     if (!lost) throw new Error(`loseOneGame: could not lose on ${difficulty} within attempt cap`);
 }
+
+/**
+ * Play up to `maxMoves` human moves into the first empty cell and assert that no
+ * previously-occupied cell ever changes. Covers the "computer never overwrites"
+ * invariant for TC-AI-01 (Easy / Medium) and TC-AI-02 (Hard, currently pending #BUG-1).
+ * Stops early if the game ends within the loop.
+ */
+export async function assertComputerDoesNotOverwriteCells(
+    play: PlayPage,
+    maxMoves = 4,
+): Promise<void> {
+    for (let move = 0; move < maxMoves; move++) {
+        const before = await play.getBoardState();
+        const emptyIdx = before.findIndex((s) => s === 'empty');
+        if (emptyIdx < 0) break;
+
+        await play.playMove(emptyIdx);
+
+        const after = await play.getBoardState();
+        after.forEach((cell, i) => {
+            if (before[i] !== 'empty') expect(cell).toBe(before[i]);
+        });
+
+        const status = await play.getStatus();
+        if (status === 'human' || status === 'computer' || status === 'draw') break;
+    }
+}

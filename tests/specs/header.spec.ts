@@ -4,7 +4,7 @@ import { HistoryPage } from '../pages/history.page';
 import { PlayPage } from '../pages/play.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../features/auth.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
 
 /**
  * Header specs — implements docs/test-cases/02-header.md.

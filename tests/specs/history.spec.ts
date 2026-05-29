@@ -1,8 +1,8 @@
 import { HistoryPage } from '../pages/history.page';
 import { PlayPage } from '../pages/play.page';
 import { NavComponent } from '../pages/nav.component';
-import { registerAndLand } from '../features/auth.feature';
-import { playUntilGameOver } from '../features/play.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
+import { playUntilGameOver } from '../fixtures/play.fixture';
 import { acceptNextConfirm, cancelNextConfirm } from '../utils/confirm';
 
 /**

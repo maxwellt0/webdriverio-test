@@ -1,7 +1,7 @@
 import { AuthPage } from '../pages/auth.page';
 import { NavComponent } from '../pages/nav.component';
 import { HeaderComponent } from '../pages/header.component';
-import { registerAndLand } from '../features/auth.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
 
 /**
  * Theme specs — implements docs/test-cases/08-theme.md.

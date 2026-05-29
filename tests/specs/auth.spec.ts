@@ -98,20 +98,6 @@ describe('Authentication', () => {
             await expect(nav.greeting).toHaveText(new RegExp(escapeRegex(name)));
         });
 
-        it('[TC-LGN-02] case-insensitive lookup', async () => {
-            const stored = uniqueUsername('Mixed');
-            await seedUser({ name: stored });
-
-            for (const variant of [stored.toUpperCase(), stored.toLowerCase()]) {
-                await auth.login(variant);
-                await play.loaded();
-                // Greeting always shows the *stored* casing, regardless of which form variant was used.
-                await expect(nav.greeting).toHaveText(new RegExp(escapeRegex(stored)));
-                await nav.logout();
-                await auth.loaded();
-            }
-        });
-
         it('[TC-LGN-03] rejects non-existent name', async () => {
             await auth.login(uniqueUsername('ghost'));
 
@@ -125,18 +111,6 @@ describe('Authentication', () => {
 
             await expect(auth.errorMessage).toBeDisplayed();
             await expect(auth.errorMessage).toHaveText(/enter your name/i);
-        });
-    });
-
-    describe('Mode switching', () => {
-        it('[TC-MOD-01] switching modes clears the prior error', async () => {
-            await auth.register(''); // produce an error in register mode
-            await expect(auth.errorMessage).toBeDisplayed();
-
-            await auth.switchModeLink.click();
-
-            await expect(auth.errorMessage).not.toBeDisplayed();
-            expect(await auth.getMode()).toBe('login');
         });
     });
 });

@@ -20,6 +20,3 @@ export const XSS_PAYLOADS = [
     '"><svg onload=window.__xss=1>',
     'javascript:window.__xss=1',
 ] as const;
-
-/** Payload for the no-upper-length-limit regression check (TC-REG-09 / LGN-05 / PRF-08). */
-export const LONG_NAME = 'A'.repeat(500);

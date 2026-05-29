@@ -1,6 +1,6 @@
 import { PlayPage } from '../pages/play.page';
-import { registerAndLand } from '../features/auth.feature';
-import { playUntilGameOver } from '../features/play.feature';
+import { registerAndLand } from '../fixtures/auth.fixture';
+import { assertComputerDoesNotOverwriteCells, playUntilGameOver } from '../fixtures/play.fixture';
 import { acceptNextConfirm, cancelNextConfirm } from '../utils/confirm';
 
 /**
@@ -18,8 +18,6 @@ describe('Play', () => {
         await registerAndLand();
     });
 
-    // ─── Status pill ────────────────────────────────────────────────────────
-
     describe('Status pill', () => {
         it('[TC-STAT-01] initial status is "Your turn (X)"', async () => {
             expect(await play.getStatus()).toBe('playing');
@@ -34,8 +32,6 @@ describe('Play', () => {
             expect(await play.getStatus()).toBe('playing');
         });
     });
-
-    // ─── Board behavior ─────────────────────────────────────────────────────
 
     describe('Board', () => {
         it('[TC-BRD-01] clicking an empty cell places X', async () => {
@@ -74,78 +70,15 @@ describe('Play', () => {
         });
     });
 
-    // ─── Computer AI ────────────────────────────────────────────────────────
-
     describe('Computer AI', () => {
         it('[TC-AI-01] computer never plays into an occupied cell (Easy & Medium)', async () => {
             for (const difficulty of ['easy', 'medium'] as const) {
                 await play.clickNewGame();
                 await play.setDifficulty(difficulty);
-
-                for (let move = 0; move < 4; move++) {
-                    const beforeBoard = await play.getBoardState();
-                    const emptyIdx = beforeBoard.findIndex((s) => s === 'empty');
-                    if (emptyIdx < 0) break;
-
-                    await play.playMove(emptyIdx);
-
-                    const afterBoard = await play.getBoardState();
-                    // No cell that was `x` or `o` should have changed.
-                    afterBoard.forEach((cell, i) => {
-                        if (beforeBoard[i] !== 'empty') {
-                            expect(cell).toBe(beforeBoard[i]);
-                        }
-                    });
-
-                    if (['human', 'computer', 'draw'].includes(await play.getStatus())) break;
-                }
+                await assertComputerDoesNotOverwriteCells(play);
             }
-        });
-
-        // TC-AI-02 — pending:#BUG-1 (Hard overwrites human cells). Skipped until fixed;
-        // once #BUG-1 is closed, remove `.skip` and the test will assert the post-fix invariant.
-        it.skip('[TC-AI-02] computer never plays into an occupied cell on Hard (pending:#BUG-1)', async () => {
-            await play.setDifficulty('hard');
-
-            for (let move = 0; move < 4; move++) {
-                const beforeBoard = await play.getBoardState();
-                const emptyIdx = beforeBoard.findIndex((s) => s === 'empty');
-                if (emptyIdx < 0) break;
-
-                await play.playMove(emptyIdx);
-
-                const afterBoard = await play.getBoardState();
-                afterBoard.forEach((cell, i) => {
-                    if (beforeBoard[i] !== 'empty') {
-                        expect(cell).toBe(beforeBoard[i]);
-                    }
-                });
-            }
-        });
-
-        // TC-AI-03 (Medium takes immediate win) and TC-AI-04 (Medium blocks immediate
-        // threat) require constructing a specific mid-game board state. Medium's random
-        // fallback for non-forcing positions makes scripted-move setup unreliable in a
-        // single attempt. Documented in the test plan and the test-cases manifest;
-        // implementing them deterministically needs a fixture / retry strategy that is
-        // out of scope for the first automation pass.
-        it.skip('[TC-AI-03] Medium takes an immediate win (needs deterministic fixture)', async () => {
-            // intentionally empty
-        });
-
-        it.skip('[TC-AI-04] Medium blocks an immediate human threat (needs deterministic fixture)', async () => {
-            // intentionally empty
-        });
-
-        // TC-AI-05 — pending:#BUG-1 (Hard plays no stronger than Easy). Skipped until
-        // #BUG-1 is fixed; post-fix, the assertion becomes `status !== 'human'` after
-        // a full game.
-        it.skip('[TC-AI-05] Hard is unwinnable from any opening (pending:#BUG-1)', async () => {
-            // intentionally empty
         });
     });
-
-    // ─── Hint button ────────────────────────────────────────────────────────
 
     describe('Hint', () => {
         it('[TC-HNT-01] disabled while computer is thinking', async () => {
@@ -166,8 +99,6 @@ describe('Play', () => {
             await expect(play.hintButton).toBeEnabled();
         });
     });
-
-    // ─── New Game / Reset ───────────────────────────────────────────────────
 
     describe('New Game / Reset', () => {
         it('[TC-NEW-01] New Game clears the board and resets status', async () => {
@@ -194,8 +125,6 @@ describe('Play', () => {
             expect(await play.getDifficulty()).toBe('medium');
         });
     });
-
-    // ─── Difficulty selector ────────────────────────────────────────────────
 
     describe('Difficulty selector', () => {
         it('[TC-DIF-02] changing difficulty before any move applies immediately', async () => {

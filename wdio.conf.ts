@@ -1,4 +1,7 @@
-const chromeArgs = ['--window-size=1280,900'];
+const chromeArgs = [
+    '--window-size=1280,900',
+    '--disable-features=PushMessaging,GCM', // silence GCM PHONE_REGISTRATION_ERROR noise on stderr
+];
 if (process.env.HEADED !== '1') {
     chromeArgs.push('--headless=new', '--no-sandbox', '--disable-dev-shm-usage');
 }
