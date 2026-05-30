@@ -5,6 +5,10 @@ services:
             dockerfile: Dockerfile.app
         ports:
             - '8080:80'
+        networks:
+            default:
+                aliases:
+                    - app.test
         healthcheck:
             test: ['CMD-SHELL', 'wget -q --spider http://localhost/ || exit 1']
             interval: 2s
@@ -19,5 +23,5 @@ services:
             app:
                 condition: service_healthy
         environment:
-            WDIO_BASE_URL: http://app
+            WDIO_BASE_URL: http://app.test
         profiles: ['test']
