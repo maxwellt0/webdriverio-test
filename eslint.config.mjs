@@ -8,6 +8,8 @@ export default tseslint.config(
             'node_modules/**',
             'src/**', // SUT — do not modify, do not lint
             'docs/**',
+            'allure-report/**', // generated Allure HTML report (minified vendor bundle)
+            'allure-results/**', // raw Allure result JSON
             '.idea/**',
             '.claude/**',
         ],

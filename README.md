@@ -1,8 +1,11 @@
 # Tic-Tac-Toe — SDET Take-Home
 
 [![CI](https://github.com/maxwellt0/webdriverio-test/actions/workflows/ci.yml/badge.svg)](https://github.com/maxwellt0/webdriverio-test/actions/workflows/ci.yml)
+[![Allure report](https://img.shields.io/badge/Allure_report-live-7d2def)](https://maxwellt0.github.io/webdriverio-test/)
 
 WebdriverIO + TypeScript test suite for the Tic-Tac-Toe app at `src/index.html`.
+
+📊 **Live Allure report:** https://maxwellt0.github.io/webdriverio-test/ (published from `main` by CI).
 
 ## For the reviewer — suggested read order
 
@@ -63,9 +66,9 @@ The report is mounted out to `./allure-report/`. It's a static site, so view it 
 
 - **Quality gates** (`quality` job) — `typecheck`, `lint`, and `format:check`, host-side via `setup-node`.
 - **Dockerized E2E** (`e2e` job) — `npm run docker:test`: builds the test image and runs the full WDIO suite against the in-network `app` service, generating the Allure report in-container.
-- **Report publishing** (`publish-report` job, `main` only) — the generated `allure-report/` is deployed to **GitHub Pages**, giving a browsable URL (it's also uploaded as a downloadable `allure-report` artifact on every run, including failures).
+- **Report publishing** (`publish-report` job, `main` only) — the generated `allure-report/` is deployed to **GitHub Pages** at **https://maxwellt0.github.io/webdriverio-test/** (it's also uploaded as a downloadable `allure-report` artifact on every run, including failures).
 
-The report URL appears in the `publish-report` job summary and the repo's **github-pages** environment. **One-time setup:** enable Pages under **Settings → Pages → Source: GitHub Actions** (a plain artifact is *not* directly browsable — an Allure report is a static SPA that must be served, so Pages is what makes it click-and-view).
+The report URL also appears in the `publish-report` job summary and the repo's **github-pages** environment. **One-time setup:** enable Pages under **Settings → Pages → Source: GitHub Actions** (a plain artifact is *not* directly browsable — an Allure report is a static SPA that must be served, so Pages is what makes it click-and-view).
 
 ## Repository layout
 

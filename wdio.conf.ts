@@ -29,7 +29,9 @@ export const config: WebdriverIO.Config = {
     // without overprovisioning big machines — the suite is 10 specs and the ~17 s Play
     // spec is the wall-clock floor, so >4 workers buys ~nothing (see DEC-9). Floored at 1.
     // Override with WDIO_MAX_INSTANCES (e.g. 1 when debugging a single spec).
-    maxInstances: Number(process.env.WDIO_MAX_INSTANCES ?? Math.min(4, Math.max(1, cpus().length - 1))),
+    maxInstances: Number(
+        process.env.WDIO_MAX_INSTANCES ?? Math.min(4, Math.max(1, cpus().length - 1)),
+    ),
 
     capabilities: [capability],
 
