@@ -169,7 +169,7 @@ tests/
 **How to apply:**
 - One-time repo setup: **Settings → Pages → Source: GitHub Actions** (otherwise `deploy-pages` fails).
 - New quality check → add a step to the `quality` job.
-- Flaky-test resilience is configured in `wdio.conf.ts`: `specFileRetries: process.env.CI ? 2 : 0` (with `specFileRetriesDeferred: true`) retries a whole spec file up to twice in CI and never locally — distinct from the transport-level `connectionRetryCount` already set. GitHub Actions sets `CI=true` automatically, so this engages only in the pipeline. Allure surfaces retries in its own tab.
+- Flaky-test resilience is configured in `wdio.conf.ts`: `specFileRetries: process.env.CI ? 2 : 0` (with `specFileRetriesDeferred: true`) retries a whole spec file up to twice in CI and never locally — distinct from the transport-level `connectionRetryCount` already set. GitHub Actions sets `CI=true` on the runner, but WDIO runs **inside** the `tests` container, so `compose.yml` must forward it (`CI: ${CI:-}`) — otherwise `process.env.CI` is undefined in-container and retries silently never fire. Allure surfaces retries in its own tab.
 
 ---
 

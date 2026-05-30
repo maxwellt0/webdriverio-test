@@ -37,6 +37,23 @@ Covers Status pill (§5.1), Board (§5.2), Computer behavior (§5.3), Hint (§5.
 
 ---
 
+### TC-STAT-03
+
+**Drawn game shows the "Draw" status and is recorded as a draw** — P1 — plan §5.5.1
+
+- **Precondition**: PRE-USER; difficulty `easy` or `medium`.
+- **Steps**:
+  1. Play a game to a draw — block every computer threat and take no winning move, retrying with **New Game** until the board fills with no winner (a draw is only finalized once all 9 cells are filled with no line).
+  2. Read the status pill text and `data-status`.
+  3. Navigate to **History**.
+- **Expected**:
+  - Status pill reads "Draw."; `data-status="draw"` (or equivalent terminal-draw marker).
+  - All cells are disabled until **New Game** / **Reset**.
+  - History records exactly one row with **Result** = "Draw"; the Profile **Draw** counter increments by 1.
+- **Notes**: P1 — forcing a draw against the random / rule-based AI is nondeterministic (like the win/loss flows), so this is documented, not automated this engagement. The draw outcome is also exercised incidentally by [TC-HIS-05](06-history.md#tc-his-05) (history Result = Draw) and [TC-PRF-07](07-profile.md#tc-prf-07) (draw stat).
+
+---
+
 ## §5.2 Board behavior
 
 ### TC-BRD-01

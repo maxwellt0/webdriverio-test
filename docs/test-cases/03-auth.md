@@ -203,6 +203,23 @@ Covers Register (§3.1), Login (§3.2), Mode switching (§3.3).
 
 ---
 
+### TC-LGN-06
+
+**Log out and log back in as the same user** — P1 — plan §5.3.2
+
+- **Precondition**: PRE-USER (a freshly registered user, signed in on the Play view).
+- **Steps**:
+  1. Note the stored name (original casing).
+  2. Click **Log Out** — the auth card returns.
+  3. Switch to **Sign in** mode.
+  4. Enter the same name and submit.
+- **Expected**:
+  - Lands on the Play view; nav greeting shows the same stored name.
+  - A `session` record exists again; `localStorage.users` still has exactly the one record (no duplicate created).
+- **Notes**: Round-trips the session lifecycle within one browser session. Complements [TC-PRS-04](10-persistence.md#tc-prs-04) (storage-level assertions on the same flow) and [TC-NAV-03](04-navigation.md#tc-nav-03) (logout only).
+
+---
+
 ## §3.3 Mode switching
 
 ### TC-MOD-01

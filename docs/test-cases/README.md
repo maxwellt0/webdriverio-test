@@ -8,7 +8,7 @@ Concrete test cases derived from the [test plan](../TESTPLAN.md). One file per a
 |----|----------------------------------|-------------------------------------------------------|-------|--------------------------------------------------------|
 | 01 | [Environment](01-environment.md) | Page load, console                                    | §5.1  | TC-ENV-01..02                                          |
 | 02 | [Header](02-header.md)           | Language & theme controls                             | §5.2  | TC-HDR-01..05                                          |
-| 03 | [Authentication](03-auth.md)     | Register / Login / Mode switching                     | §5.3  | TC-REG-01..09, TC-LGN-01..05, TC-MOD-01..02            |
+| 03 | [Authentication](03-auth.md)     | Register / Login / Mode switching                     | §5.3  | TC-REG-01..09, TC-LGN-01..06, TC-MOD-01..02            |
 | 04 | [Navigation](04-navigation.md)   | Nav bar                                               | §5.4  | TC-NAV-01..04                                          |
 | 05 | [Play](05-play.md)               | Status / Board / AI / Hint / New / Reset / Difficulty | §5.5  | TC-STAT, TC-BRD, TC-AI, TC-HNT, TC-NEW, TC-RST, TC-DIF |
 | 06 | [History](06-history.md)         | History view                                          | §5.6  | TC-HIS-01..11                                          |

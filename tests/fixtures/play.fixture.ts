@@ -25,55 +25,59 @@ function findCompletingMove(board: ReadonlyArray<CellState>, symbol: 'x' | 'o'):
     return -1;
 }
 
+type TargetWinner = 'human' | 'computer';
+
 /**
- * Play a single game using a near-optimal heuristic: take any immediate win,
- * else block any immediate threat, else fill center → corners → edges in order.
- * Resolves once the game reaches a terminal status, with the final outcome.
+ * Play one game aiming for a specific winner **without recording any off-target
+ * game**. A draw is only ever finalized on the human's 9th move — the board fills on
+ * the last move, and since the human moves first that move is always the human's — so
+ * if completing the board wouldn't produce `winner`, we abandon the game *before* that
+ * move. An abandoned game stays in-progress (never terminal), so the SUT records
+ * nothing; the caller resets via New Game and retries.
+ *
+ * - `winner: 'human'` — take any immediate win, else block, else center → corners →
+ *   edges. Effectively always wins against Easy's random play.
+ * - `winner: 'computer'` — play passively (edges → corners → center) and never
+ *   complete a human line, letting a rule-based opponent (Medium) build its own win.
+ *
+ * Returns the terminal status, or `'abandoned'` if we bailed before recording.
  */
-async function playStrategicGame(play: PlayPage): Promise<TerminalStatus> {
-    const priorities = [4, 0, 2, 6, 8, 1, 3, 5, 7]; // center, corners, edges
+async function playForWinner(
+    play: PlayPage,
+    winner: TargetWinner,
+): Promise<TerminalStatus | 'abandoned'> {
+    const order =
+        winner === 'human'
+            ? [4, 0, 2, 6, 8, 1, 3, 5, 7] // center, corners, edges
+            : [1, 3, 5, 7, 0, 2, 6, 8, 4]; // edges, corners, center
+
     for (let move = 0; move < 9; move++) {
         const board = await play.getBoardState();
+        const winningMove = findCompletingMove(board, 'x');
 
-        let next = findCompletingMove(board, 'x');
-        if (next < 0) next = findCompletingMove(board, 'o');
-        if (next < 0) next = priorities.find((i) => board[i] === 'empty') ?? -1;
-        if (next < 0) break;
+        let next: number;
+        if (winner === 'human') {
+            next = winningMove; // take the win
+            if (next < 0) next = findCompletingMove(board, 'o'); // else block
+            if (next < 0) next = order.find((i) => board[i] === 'empty') ?? -1;
+        } else {
+            // Losing on purpose: never complete a human line.
+            next = order.find((i) => board[i] === 'empty' && i !== winningMove) ?? -1;
+        }
+        if (next < 0) return 'abandoned';
+
+        // Abandon before the board-filling final move if it wouldn't produce our target
+        // winner (a human win), so no draw — or off-target last-move win — is recorded.
+        const isLastCell = board.filter((s) => s === 'empty').length === 1;
+        const completesWin = winner === 'human' && next === winningMove;
+        if (isLastCell && !completesWin) return 'abandoned';
 
         await play.playMove(next);
 
         const status = await play.getStatus();
         if (isTerminal(status)) return status;
     }
-    await play.waitForGameOver();
-    const final = await play.getStatus();
-    if (!isTerminal(final))
-        throw new Error(`playStrategicGame: unexpected non-terminal status ${final}`);
-    return final;
-}
-
-/**
- * Play a single game passively — pick the next empty cell in a non-threatening order
- * (edges first, then corners, then center). Designed to let a rule-based computer (Medium)
- * build its own winning line.
- */
-async function playPassiveGame(play: PlayPage): Promise<TerminalStatus> {
-    const passive = [1, 3, 5, 7, 0, 2, 6, 8, 4]; // edges, corners, center
-    for (let move = 0; move < 9; move++) {
-        const board = await play.getBoardState();
-        const next = passive.find((i) => board[i] === 'empty');
-        if (next === undefined) break;
-
-        await play.playMove(next);
-
-        const status = await play.getStatus();
-        if (isTerminal(status)) return status;
-    }
-    await play.waitForGameOver();
-    const final = await play.getStatus();
-    if (!isTerminal(final))
-        throw new Error(`playPassiveGame: unexpected non-terminal status ${final}`);
-    return final;
+    return 'abandoned';
 }
 
 /**
@@ -94,30 +98,28 @@ export async function playUntilGameOver(play: PlayPage): Promise<void> {
 }
 
 /**
- * Play games on Easy until the human wins. Each attempt resets the board via
- * **New Game**. Caps attempts so a string of bad luck against random play can't
- * hang the suite.
+ * Play games on Easy until the human wins, retrying via **New Game**. Off-target
+ * games are abandoned before they record (see `playForWinner`), so a win is the
+ * only history row this leaves. Caps attempts so bad luck can't hang the suite.
  */
 export async function playUntilWin(play: PlayPage, maxAttempts = 8): Promise<boolean> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
         if (attempt > 0) await play.clickNewGame();
-        const outcome = await playStrategicGame(play);
-        if (outcome === 'human') return true;
+        if ((await playForWinner(play, 'human')) === 'human') return true;
     }
     return false;
 }
 
 /**
- * Play games on the current difficulty until the human loses. Used with Medium
- * (which reliably exploits non-threatening play); on Easy the loss rate is low
- * enough that this would frequently exhaust attempts, so callers should set
- * difficulty to Medium first.
+ * Play games on the current difficulty until the human loses, retrying via **New
+ * Game**. Off-target games (including draws) are abandoned before they record, so a
+ * loss is the only history row this leaves. Use with Medium (which exploits
+ * non-threatening play); on Easy losses are too rare and this would exhaust attempts.
  */
 export async function playUntilLoss(play: PlayPage, maxAttempts = 8): Promise<boolean> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
         if (attempt > 0) await play.clickNewGame();
-        const outcome = await playPassiveGame(play);
-        if (outcome === 'computer') return true;
+        if ((await playForWinner(play, 'computer')) === 'computer') return true;
     }
     return false;
 }

@@ -85,6 +85,7 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - **P0** — non-existent name → `authErrorNotFound`.
 - **P0** — empty / whitespace → `authErrorEmpty`.
 - **P1** — case-insensitive lookup: registered "Sara" can log in as "SARA" / "sara".
+- **P1** — log out then log back in as the same user (same browser session): session re-established, lands on Play, no duplicate user record (TC-LGN-06).
 
 #### 5.3.3 Mode switching *(maps to [EXPLORATION §3.3](EXPLORATION.md#33-mode-switching))*
 - **P1** — switching modes via the link clears any displayed error.
@@ -104,6 +105,7 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - **P0** — initial state shows "Your turn (X)".
 - **P0** — status transitions correctly: human-turn → computer-thinking → human-turn → … → win / loss / draw.
 - **P0** — `data-status` attribute reflects each state and is the canonical sync signal for the suite.
+- **P1** — a drawn game shows the "Draw" status, locks the board, and records exactly one draw row + increments the draw stat; forcing a draw is nondeterministic, so documented only (TC-STAT-03).
 
 #### 5.5.2 Board behavior *(maps to [EXPLORATION §5.2](EXPLORATION.md#52-board-behavior))*
 - **P0** — clicking an empty cell places X immediately.
@@ -145,7 +147,7 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - **P0** — table columns (Date, Difficulty, Result) reflect the underlying game.
 - **P0** — newest entry first.
 - **P0** — Clear History triggers a confirm; OK clears all rows, Cancel keeps them.
-- **P1** — Clear History scopes to the current user only: clearing one user's history leaves another user's history untouched (no cross-user data loss in the shared `users` store).
+- **P1** — Clear History scopes to the current user only: clearing one user's history leaves another user's history untouched (no cross-user data loss in the shared `users` store) (TC-HIS-11).
 - **P1** — date formatting uses the active locale (Gregorian for `en`, **Persian Solar Hijri / Jalali** for `fa`) — test the Jalali path, not just "different string".
 - **P1** — table caps at 100 rows (seed via localStorage to validate).
 
