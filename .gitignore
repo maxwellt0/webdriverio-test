@@ -19,14 +19,10 @@ pnpm-debug.log*
 /coverage/
 /.nyc_output/
 
-# WebdriverIO / Playwright / Cypress artifacts
+# WebdriverIO
 /wdio-logs/
 /screenshots/
 /videos/
-/cypress/screenshots/
-/cypress/videos/
-/playwright-report/
-/.playwright/
 
 # Env / secrets
 .env

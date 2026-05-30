@@ -28,7 +28,7 @@ tests/
 - `utils/` is a deliberate catch-all; anything that has no clean home goes there with a justification in its own file header.
 
 **How to apply:**
-- New page object → `tests/pages/<Name>Page.ts`, extending `BasePage` from `tests/core/`.
+- New page object → `tests/pages/<name>.page.ts` (kebab-case, `.page` suffix — e.g. `profile.page.ts`), extending `BasePage` from `tests/core/`.
 - New cross-page workflow or shared assertion → `tests/fixtures/<area>.fixture.ts`. If it would only ever be called from one spec, inline it instead.
 - New helper → `tests/utils/`. If a util grows into a class or starts owning state, consider promoting it to `core/`.
 - Specs (`tests/specs/`) only consume the above. Spec files should not contain low-level WDIO calls beyond `before` / `beforeEach` hooks; everything goes through page / feature / util modules.
@@ -136,22 +136,40 @@ tests/
 - `npm test` writes `allure-results/` (raw JSON) alongside the spec console output.
 - `npm run allure:serve` — quickest path: generates and opens the HTML report in one step (requires Java, bundled via `allure-commandline`).
 - `npm run allure:generate && npm run allure:open` — split form, for CI artifact upload.
+- **Dockerized run** (`npm run docker:test`): the report is generated **inside** the `tests` container — `Dockerfile.tests` bundles a headless JRE and the container command runs `allure generate` after WDIO (even on failure, preserving the exit code). The result is mounted out to `./allure-report/` via `compose.yml`, so reviewers need no host-side Java or Allure install. `allure-results/` stays inside the `--rm` container so runs never merge stale results. View the host copy with any static server, e.g. `npx http-server ./allure-report -o`.
 - Both `allure-results/` and `allure-report/` are gitignored.
 
 ---
 
-## DEC-9 — Spec-file parallelism: `maxInstances = 4`
+## DEC-9 — Spec-file parallelism: `maxInstances = min(cores - 1, 4)`
 
-**Decision:** Run up to 4 spec files in parallel (`WDIO_MAX_INSTANCES`-overridable). Was `1` until verified safe.
+**Decision:** Default `maxInstances` to `Math.min(4, Math.max(1, cpus().length - 1))` — derived from the host's CPU count, floored at 1, capped at 4 (`WDIO_MAX_INSTANCES`-overridable). Was a fixed `4`, and `1` before that until verified safe.
 
 **Why:**
 - Each WDIO worker gets its own Chrome session — separate localStorage, cookies, and `window`. The `beforeEach(resetAndOpen)` pattern already isolates state *per test*; spreading specs across workers extends that isolation across the suite without code changes.
 - The only shared resource is the nginx `app` container (or `http-server` on host), which is a static file server with no per-client state — concurrent reads of `index.html` are trivially safe.
 - `uniqueUsername` uses `Date.now() + 6 chars of base36 random` ≈ 2 billion combinations per millisecond, so cross-worker username collisions don't happen in practice.
 - Measured: 10 specs / 54 tests went from **~71 s** sequential to **~33 s** with 4 workers (~54 % faster). The Play spec (~17 s) is the floor; other workers finish around it.
-- `maxInstances = 4` rather than "match CPU cores" because each Chrome instance is ~200 MB and the suite is small — 4 is enough to cover the long-pole spec without overprovisioning. Override with `WDIO_MAX_INSTANCES=N` (set to `1` when debugging a single spec to keep logs un-interleaved).
+- **Derived, not fixed, but capped.** `cores - 1` scales the suite down on small CI runners (a 2-core GitHub-hosted runner → 1; a 4-core public-repo runner → 3) without a hardcoded number that's wrong everywhere. The **cap of 4** holds because each Chrome is ~200–400 MB *and* the speedup is bounded by the long-pole Play spec — past 4 workers the extra Chromes sit idle waiting on it (Amdahl), so a 10-core laptop spawning 9 would burn ~2 GB more RAM for ~no wall-clock gain. WDIO runs inside the `tests` container in CI, which sees the runner's full vCPU count (no `--cpus` limit), so the same formula applies there. Override with `WDIO_MAX_INSTANCES=N` (set to `1` when debugging a single spec to keep logs un-interleaved).
 
 **How to apply:** new specs need no special setup — they just need to follow the existing `beforeEach(resetAndOpen)` pattern. Anything that introduces cross-spec shared state (e.g. a singleton seeded once globally) would break parallel safety; if such state is needed, isolate it per worker via `wdio` worker hooks.
+
+---
+
+## DEC-10 — CI on GitHub Actions; Allure report to GitHub Pages
+
+**Decision:** `.github/workflows/ci.yml` runs on push-to-`main` and PR with three jobs: `quality` (typecheck + lint + format:check, host-side), `e2e` (`npm run docker:test`), and `publish-report` (deploys the Allure report to GitHub Pages, `main` only). The report is also uploaded as a downloadable artifact on every run.
+
+**Why:**
+- **Same entry point as local.** CI runs the exact canonical command (`npm run docker:test`) rather than a bespoke CI script — no drift between "works on my machine" and "works in CI". The report is generated in-container (see DEC-8), so the runner needs no Java or Allure install.
+- **Quality gates are separate and fast.** `typecheck` / `lint` / `format:check` run host-side via `setup-node` with npm caching; they fail fast and independently of the heavier dockerized E2E job.
+- **Pages over plain artifact for accessibility.** An Allure report is a static SPA that fetches `data/*.json` over XHR — a downloaded artifact is *not* directly browsable (`file://` breaks it). GitHub Pages serves it at a real URL so reviewers click through to the report; the raw artifact is kept too, for durability and CI-to-CI download.
+- **Publish even on red.** Upload/deploy steps use `if: !cancelled()` so a failing suite still publishes its report — that's exactly when the report is most useful. `publish-report` is gated to `main` so PRs don't overwrite the published report.
+
+**How to apply:**
+- One-time repo setup: **Settings → Pages → Source: GitHub Actions** (otherwise `deploy-pages` fails).
+- New quality check → add a step to the `quality` job.
+- Flaky-test resilience is configured in `wdio.conf.ts`: `specFileRetries: process.env.CI ? 2 : 0` (with `specFileRetriesDeferred: true`) retries a whole spec file up to twice in CI and never locally — distinct from the transport-level `connectionRetryCount` already set. GitHub Actions sets `CI=true` automatically, so this engages only in the pipeline. Allure surfaces retries in its own tab.
 
 ---
 

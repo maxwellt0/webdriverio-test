@@ -24,4 +24,8 @@ services:
                 condition: service_healthy
         environment:
             WDIO_BASE_URL: http://app.test
+        # Surface the in-container Allure report on the host. allure-results stays
+        # inside the (--rm) container so runs never merge stale results.
+        volumes:
+            - ./allure-report:/app/allure-report
         profiles: ['test']

@@ -38,10 +38,6 @@
         "typescript-eslint": "^8.18.0"
     },
     "overrides": {
-        "serialize-javascript": "^6.0.2",
-        "debug": "^4.3.7",
-        "diff": "^5.2.0",
-        "js-yaml": "^4.1.0",
-        "minimatch": "^9.0.5"
+        "serialize-javascript": "^7.0.5"
     }
 }

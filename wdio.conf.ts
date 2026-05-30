@@ -1,3 +1,5 @@
+import { cpus } from 'node:os';
+
 const chromeArgs = [
     '--window-size=1280,900',
     '--disable-features=PushMessaging,GCM', // silence GCM PHONE_REGISTRATION_ERROR noise on stderr
@@ -23,7 +25,11 @@ export const config: WebdriverIO.Config = {
     runner: 'local',
 
     specs: ['./tests/specs/**/*.spec.ts'],
-    maxInstances: Number(process.env.WDIO_MAX_INSTANCES ?? 4),
+    // Default to (CPU cores - 1), capped at 4: scale down on small / 2-core CI runners
+    // without overprovisioning big machines — the suite is 10 specs and the ~17 s Play
+    // spec is the wall-clock floor, so >4 workers buys ~nothing (see DEC-9). Floored at 1.
+    // Override with WDIO_MAX_INSTANCES (e.g. 1 when debugging a single spec).
+    maxInstances: Number(process.env.WDIO_MAX_INSTANCES ?? Math.min(4, Math.max(1, cpus().length - 1))),
 
     capabilities: [capability],
 
@@ -32,6 +38,8 @@ export const config: WebdriverIO.Config = {
     waitforTimeout: 10000,
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
+    specFileRetries: process.env.CI ? 2 : 0,
+    specFileRetriesDeferred: true,
 
     framework: 'mocha',
     reporters: [
@@ -49,12 +57,4 @@ export const config: WebdriverIO.Config = {
         ui: 'bdd',
         timeout: 60000,
     },
-
-    /**
-     * `beforeTest` fires AFTER each spec's mocha `beforeEach` in this version of WDIO,
-     * which is too late to use for "land on a fresh auth card" setup. Instead, each
-     * spec's setup helper (`resetAndOpen` / `registerAndLand`) calls into a fixture
-     * that performs the navigate + storage-clear itself, so any entry point is
-     * self-bootstrapping regardless of where chrome started.
-     */
 };

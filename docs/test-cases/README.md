@@ -11,7 +11,7 @@ Concrete test cases derived from the [test plan](../TESTPLAN.md). One file per a
 | 03 | [Authentication](03-auth.md)     | Register / Login / Mode switching                     | §5.3  | TC-REG-01..09, TC-LGN-01..05, TC-MOD-01..02            |
 | 04 | [Navigation](04-navigation.md)   | Nav bar                                               | §5.4  | TC-NAV-01..04                                          |
 | 05 | [Play](05-play.md)               | Status / Board / AI / Hint / New / Reset / Difficulty | §5.5  | TC-STAT, TC-BRD, TC-AI, TC-HNT, TC-NEW, TC-RST, TC-DIF |
-| 06 | [History](06-history.md)         | History view                                          | §5.6  | TC-HIS-01..10                                          |
+| 06 | [History](06-history.md)         | History view                                          | §5.6  | TC-HIS-01..11                                          |
 | 07 | [Profile](07-profile.md)         | Profile view                                          | §5.7  | TC-PRF-01..08                                          |
 | 08 | [Theme](08-theme.md)             | Theming                                               | §5.8  | TC-THM-01..02                                          |
 | 09 | [Localization](09-i18n.md)       | i18n + Jalali dates                                   | §5.9  | TC-I18N-01..05                                         |
@@ -23,7 +23,7 @@ Browser confirm dialogs (plan §5.11) are exercised inside the cases that own ea
 
 - **ID format**: `TC-<AREA>-<NN>` (zero-padded, sequential per area).
 - **Priority**: `P0` (in automation scope), `P1` / `P2` (documented only — see [plan §1](../TESTPLAN.md#1-scope--objective)).
-- **`pending:#BUG-N`** means the expected behavior is currently violated by the referenced bug; the corresponding spec is either skipped or **inverted as a regression check** until the bug is fixed.
+- **`pending:#BUG-N`** means the expected behavior is currently violated by the referenced bug. These cases document both the target behavior and the current (broken) behavior, but are **not automated this engagement** (see [DEC-3](../DECISIONS.md)) — the filed bug is the deliverable.
 - Every P0 case is implemented by a Mocha spec in `tests/specs/`; the spec docblock references its TC ID.
 - Locators use `data-testid`. The mapping selector ↔ feature lives in the specs, not here.
 

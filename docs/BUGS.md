@@ -1,6 +1,6 @@
 # Bugs — Tic-Tac-Toe SUT
 
-Defects found during exploratory testing of `src/index.html` (version `v0.0.9-beta`, as printed in the DevTools console). Bugs are listed in severity order; the triage backlog at the bottom contains items observed but not yet investigated to repro-ready detail.
+Defects found during exploratory testing of `src/index.html` (version `v0.0.9-beta`, as printed in the DevTools console). Bugs are listed in severity order.
 
 ## Summary
 
@@ -60,7 +60,7 @@ This bug has **two observable symptoms** that almost certainly share a root caus
 - Impact on automation — affected test cases:
   - [`TC-AI-02`](test-cases/05-play.md#tc-ai-02) — computer must not overwrite a played cell on Hard (Symptom B).
   - [`TC-AI-05`](test-cases/05-play.md#tc-ai-05) — Hard must be unwinnable (Symptom A).
-  - Both are marked `pending:#BUG-1` and inverted as regression checks until fixed.
+  - Both are marked `pending:#BUG-1` — documented with the current (broken) behavior captured, but not automated this engagement (see `DECISIONS.md` DEC-3).
 
 ---
 

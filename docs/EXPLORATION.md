@@ -94,7 +94,7 @@ Layout, top to bottom:
 - Computer move arrives after roughly **1.5 seconds** of "thinking" — long enough to notice the delay deliberately.
 - **Easy**: picks a seemingly random empty cell. Plays winning moves only by accident; weak overall but **stronger than Hard** in observed play.
 - **Medium**: takes a winning move if available; blocks the human's imminent win; otherwise picks randomly. **The strongest of the three observed difficulties** — beatable, but clearly the hardest to win against.
-- **Hard**: **the weakest in observed play** — moves look effectively random and the human can win freely. Additionally, the computer can **overwrite a cell the human has already played** — the human's X is replaced by the computer's O instead of the computer picking an empty cell. Suspected defects; see `docs/concerns.md` items 5 and 6 (consolidated as #BUG-1).
+- **Hard**: **the weakest in observed play** — moves look effectively random and the human can win freely. Additionally, the computer can **overwrite a cell the human has already played** — the human's X is replaced by the computer's O instead of the computer picking an empty cell. Suspected defects; see [#BUG-1](BUGS.md#bug-1--hard-difficulty-weak-play-and-overwrites-the-humans-move).
 
 **Observed difficulty ordering (strongest → weakest): Medium > Easy > Hard.** The advertised order should be Hard > Medium > Easy, so the difficulty levels are effectively inverted around Hard.
 
@@ -103,7 +103,7 @@ Layout, top to bottom:
 - Disabled while computer is thinking.
 - Disabled after the game ends.
 - Enabled on the human's turn during an active game.
-- Clicking it highlights a single empty cell on the board. **The suggestion does not appear to be strategic** — it picks an empty cell with no apparent correlation to a winning move or to blocking the computer's win. Across many trials the hint behaves like "pick an empty cell at random" rather than "best move". Suspected defect; see `docs/concerns.md` #BUG-2. The board has an aria-live region that announces the hint.
+- Clicking it highlights a single empty cell on the board. **The suggestion does not appear to be strategic** — it picks an empty cell with no apparent correlation to a winning move or to blocking the computer's win. Across many trials the hint behaves like "pick an empty cell at random" rather than "best move". Suspected defect; see [#BUG-2](BUGS.md#bug-2--hint-does-not-suggest-a-strategic-move). The board has an aria-live region that announces the hint.
 - The highlight clears as soon as the human plays any cell (whether the hinted one or not).
 
 ### 5.5 New game
@@ -118,7 +118,7 @@ Layout, top to bottom:
 
 ### 5.7 Difficulty selector
 
-- Visually looks like a plain text input — **no chevron / dropdown caret** is rendered, unlike the Language selector in the header which does show one. A user is unlikely to discover it is a dropdown without clicking it. See `docs/concerns.md` triage item 3.
+- Visually looks like a plain text input — **no chevron / dropdown caret** is rendered, unlike the Language selector in the header which does show one. A user is unlikely to discover it is a dropdown without clicking it. See [#BUG-4](BUGS.md#bug-4--difficulty-selector-lacks-a-dropdown-affordance).
 - Changes apply immediately if the board is empty.
 - Changing difficulty **after at least one cell has been played** triggers a browser confirm dialog: *"Change difficulty? The current game will be reset."*
   - **OK** → board clears and the new difficulty is selected.
@@ -162,7 +162,7 @@ Layout, top to bottom:
 ## 9. Localization details
 
 - Switching language re-renders most visible labels; the dropdown options for difficulty also become localized ("Easy" → "آسان", etc.).
-- **Exception (defect):** the app header's **game name ("Tic-Tac-Toe")** and the **subtitle / description** below it remain in English even after switching to Persian. Suspected defect; see `docs/concerns.md` #BUG-3.
+- **Exception (defect):** the app header's **game name ("Tic-Tac-Toe")** and the **subtitle / description** below it remain in English even after switching to Persian. Suspected defect; see [#BUG-3](BUGS.md#bug-3--game-title-and-subtitle-are-not-translated-to-persian).
 - The Persian rendering uses Persian digits for dates and counters.
 - Language persists across reloads, and like theme, is a global UI setting (not per-user).
 - Switching language **mid-game does not reset the board** — moves and status remain; only the strings around the board change.

@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Allow only one concurrent run per ref; cancel stale in-progress runs.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Static quality gates — fast, host-side, no browser needed.
+  # ---------------------------------------------------------------------------
+  quality:
+    name: Typecheck + Lint + Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+
+  # ---------------------------------------------------------------------------
+  # Dockerized end-to-end run. `npm run docker:test` builds the test image,
+  # runs WDIO against the in-network `app` service, and generates the Allure
+  # HTML report *inside* the container (mounted out to ./allure-report).
+  # ---------------------------------------------------------------------------
+  e2e:
+    name: Dockerized WDIO suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run suite + build Allure report (in-container)
+        run: npm run docker:test
+
+      # Upload even when tests fail — the report is most useful on red.
+      - name: Upload Allure report (downloadable artifact)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+          if-no-files-found: error
+
+      # Stage the same report for GitHub Pages (browsable URL).
+      - name: Upload Pages artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+
+  # ---------------------------------------------------------------------------
+  # Publish the report to GitHub Pages — main only, even if e2e went red.
+  # Gives a clickable URL (Settings → Pages → Source: GitHub Actions).
+  # ---------------------------------------------------------------------------
+  publish-report:
+    name: Publish Allure report to Pages
+    needs: e2e
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

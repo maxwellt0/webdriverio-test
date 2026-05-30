@@ -22,7 +22,7 @@ Priority legend used throughout:
 - Visual/CSS regression (pixel-diffing) — no design spec to assert against.
 - Accessibility — no automated a11y checks in this engagement. ARIA roles / labels and keyboard navigation are observable in the SUT but a full audit (axe-core sweep, WCAG conformance, screen-reader walkthrough) is deferred to future work.
 - Performance / load — single-user offline SPA, no meaningful load profile.
-- Security beyond observing the name-injection risk (BUGS.md item 10) — no auth-server attack surface exists.
+- Security beyond observing the name-injection risk (covered by the XSS test cases TC-REG-06 / TC-PRF-06) — no auth-server attack surface exists.
 - Cross-browser — Chromium only (per the Docker setup); a real release would add at least Firefox + WebKit.
 - Responsive / multi-viewport UI — tests run at a fixed 1280×900 desktop viewport. Per-breakpoint layout assertions and mobile gesture coverage are deferred to manual / future work.
 
@@ -38,9 +38,9 @@ Priority legend used throughout:
 - **Determinism**:
   - Easy/Hard moves look random — assertions cannot depend on which cell the computer picks.
   - Medium is rule-based and effectively deterministic given board state — usable for forced win/block scenarios.
-  - Confirm dialogs (`window.confirm`) are handled via WDIO's native alert API; if the SUT bypasses it, fall back to monkey-patching `window.confirm` via `browser.execute`.
+  - Confirm dialogs (`window.confirm`) are handled by monkey-patching `window.confirm` via `browser.execute` before the triggering action — WDIO's native alert API races the synchronous confirm and hangs. See `DECISIONS.md` DEC-7.
 - **Localization assertions**: pull expected strings from a small en/fa key map maintained alongside the specs (single source of truth), not hardcoded throughout. This isolates the suite from string churn and from #BUG-3.
-- **Known-bug handling**: scenarios that would currently fail due to a logged bug are marked **`pending:#BUG-N`** in this plan; their corresponding cases will be either skipped with the reference, or inverted as regression checks that fail when the bug is fixed.
+- **Known-bug handling**: scenarios that would currently fail due to a logged bug are marked **`pending:#BUG-N`** in this plan; their corresponding cases document both the target and the current (broken) behavior but are not automated this engagement (see `DECISIONS.md` DEC-3) — the filed bug is the deliverable.
 
 ## 4. Test data
 
@@ -72,9 +72,9 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 #### 5.3.1 Register *(maps to [EXPLORATION §3.1](EXPLORATION.md#31-register-create-account))*
 - **P0** — happy path: valid new name → user created, signed in, lands on Play view.
 - **P0** — validation: empty, whitespace-only, 1-character, and duplicate name (case-insensitive) → correct inline error, stays on auth view.
-- **P0** — **name injection / XSS**: a name containing HTML/JS payloads (`<script>alert(1)</script>`, `<img src=x onerror=alert(1)>`, `"><svg onload=alert(1)>`, `javascript:` URIs) registers without executing the payload, and the literal text is rendered safely everywhere the name appears (auth greeting, nav, avatar tooltip, profile, history). Tied to concerns.md item 10.
+- **P0** — **name injection / XSS**: a name containing HTML/JS payloads (`<script>alert(1)</script>`, `<img src=x onerror=alert(1)>`, `"><svg onload=alert(1)>`, `javascript:` URIs) registers without executing the payload, and the literal text is rendered safely everywhere the name appears (auth greeting, nav, avatar tooltip, profile, history).
 - **P1** — case preservation: stored display name keeps the user's original casing.
-- **P1** — input edge cases (concerns.md item 9):
+- **P1** — input edge cases:
   - leading / trailing whitespace is either trimmed before storage or treated consistently for uniqueness checks (no `"Sara"` ≠ `" Sara "` ambiguity);
   - very long names (e.g. ≥256 chars) are either rejected or rendered without breaking layout;
   - Unicode (emoji, combining marks, RTL marks, zero-width chars) renders correctly and does not confuse uniqueness;
@@ -136,7 +136,7 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - **P0** — changing difficulty before any move applies immediately.
 - **P0** — changing difficulty mid-game (with moves on the board) triggers a confirm dialog; OK clears the board with the new difficulty, Cancel reverts.
 - **P0** — difficulty change persists to the user record (re-login → still set).
-- **P2** — selector lacks a dropdown caret (BUGS.md item 3) — UX issue, no functional test.
+- **P2** — selector lacks a dropdown caret ([#BUG-4](BUGS.md#bug-4--difficulty-selector-lacks-a-dropdown-affordance)) — UX issue, no functional test.
 
 ### 5.6 History view *(maps to [EXPLORATION §6](EXPLORATION.md#6-history-view))*
 
@@ -145,6 +145,7 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - **P0** — table columns (Date, Difficulty, Result) reflect the underlying game.
 - **P0** — newest entry first.
 - **P0** — Clear History triggers a confirm; OK clears all rows, Cancel keeps them.
+- **P1** — Clear History scopes to the current user only: clearing one user's history leaves another user's history untouched (no cross-user data loss in the shared `users` store).
 - **P1** — date formatting uses the active locale (Gregorian for `en`, **Persian Solar Hijri / Jalali** for `fa`) — test the Jalali path, not just "different string".
 - **P1** — table caps at 100 rows (seed via localStorage to validate).
 
@@ -198,4 +199,5 @@ The remaining sections map 1-to-1 to `EXPLORATION.md`. Each area lists the **asp
 - Bug reports (`docs/BUGS.md`).
 - Test-automation design decisions + rationale (`docs/DECISIONS.md`).
 - Automated specs covering **P0 only** (`tests/specs/`).
+- CI pipeline running the suite + quality gates and publishing the Allure report (`.github/workflows/ci.yml` — see `DECISIONS.md` DEC-10).
 - README orienting reviewers (`README.md`).

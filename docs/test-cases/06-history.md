@@ -136,3 +136,22 @@ Implements [plan §5.6](../TESTPLAN.md). For conventions / preconditions / test 
 **Missing padding above the Game History header** — P2, `pending:`[`#BUG-5`](../BUGS.md#bug-5--missing-padding-above-the-game-history-header) — plan §5.6
 
 - Documentation-only. Not automated. The History view header sits flush against the nav bar, missing the breathing room used on other views. See [#BUG-5](../BUGS.md#bug-5--missing-padding-above-the-game-history-header).
+
+---
+
+### TC-HIS-11
+
+**Clearing history affects only the current user** — P1 — plan §5.6
+
+- **Precondition**: PRE-CLEAN. Two users each with ≥ 1 finished game in their own history:
+  1. Register user A; play a game to completion (A now has ≥ 1 history row).
+  2. Log out; register user B; play a game to completion (B now has ≥ 1 history row).
+- **Steps**:
+  1. As user B, navigate to **History**, click **Clear History**, and **OK** the confirm.
+  2. Verify B's history is now in the empty state.
+  3. Log out and log back in as user A.
+  4. Navigate to **History**.
+- **Expected**:
+  - User A's history still shows their original row(s) — **Clear History** scopes to the acting user's record only.
+  - `localStorage.users` shows B's `history` empty while A's `history` is untouched.
+- **Notes**: Guards against cross-user data loss in the shared `ttt:users` store. P1 — documented only, not automated this engagement.
